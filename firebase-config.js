@@ -1,9 +1,6 @@
-// ✅ Firebase Config + Firestore Setup (v12.6.0)
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-// ✅ Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyC6EOX2i_6vCqz-EwiopQyd0qwtsomOppw",
   authDomain: "sample-4d3c3.firebaseapp.com",
