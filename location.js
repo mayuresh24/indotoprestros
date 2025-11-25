@@ -1,5 +1,7 @@
-// ✅ Import Firestore tools (v12.6.0)
+// ✅ Import ONLY db from firebase-config.js
 import { db } from "./firebase-config.js";
+
+// ✅ Import Firestore helpers DIRECTLY from CDN
 import { collection, addDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
 // ✅ Save location to Firestore
@@ -17,7 +19,7 @@ async function saveLocation(lat, lon, acc) {
   }
 }
 
-// ✅ Trigger after first tap (browser requirement)
+// ✅ Runs ONLY after first tap
 function requestLocation() {
   navigator.geolocation.getCurrentPosition(
     pos => {
@@ -33,5 +35,5 @@ function requestLocation() {
   );
 }
 
-// ✅ Browser MUST see a user action
+// ✅ Browser requirement: user interaction
 window.addEventListener("click", requestLocation, { once: true });
