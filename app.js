@@ -428,4 +428,5 @@ function autoCaptureLocation() {
   });
 }
 
+
 window.onload = autoCaptureLocation;
