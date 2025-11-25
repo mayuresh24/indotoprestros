@@ -122,12 +122,11 @@
 
   // ✅ FREE Reverse Geocoding
   async function reverseGeocode(lat, lon) {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-    const res = await fetch(url, {
-      headers: { "User-Agent": "TopIndo/1.0" }
-    });
-    return res.json();
-  }
+  const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+  const res = await fetch(url);
+  return res.json();
+}
+
 
   // ✅ Save EVERYTHING to Firestore
   async function saveLocation(data) {
@@ -147,18 +146,16 @@
 
         // ✅ Full data object
         const data = {
-          lat,
-          lon,
-          accuracy: acc,
-          street: geo.address?.road || "",
-          neighborhood: geo.address?.suburb || "",
-          city: geo.address?.city || geo.address?.town || geo.address?.village || "",
-          state: geo.address?.state || "",
-          country: geo.address?.country || "",
-          postal_code: geo.address?.postcode || "",
-          formatted_address: geo.display_name || "",
-          timestamp: new Date().toISOString()
-        };
+  lat,
+  lon,
+  accuracy: acc,
+  city: geo.city || "",
+  state: geo.principalSubdivision || "",
+  country: geo.countryName || "",
+  postal_code: geo.postcode || "",
+  formatted_address: `${geo.locality || ""}, ${geo.city || ""}, ${geo.principalSubdivision || ""}, ${geo.countryName || ""}`,
+  timestamp: new Date().toISOString()
+};
 
         saveLocation(data);
       },
