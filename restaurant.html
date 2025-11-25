@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Single Restaurant Page Template -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Restaurant — Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="smooth">
+  <header class="nav">
+    <div class="nav__brand">
+      <div class="logo-glow">Top Indo</div>
+      <small class="muted">Restaurants & Cafés</small>
+    </div>
+    <nav class="nav__links">
+      <a href="index.html">Home</a>
+      <a href="restaurants.html">Restaurants</a>
+      <a href="about.html">About</a>
+      <a href="contact.html" class="btn btn--accent">Contact</a>
+    </nav>
+  </header>
+
+  <main id="restaurantRoot">
+    <!-- Full-width banner -->
+    <section id="restaurantBanner" class="banner">
+      <!-- JS will set background-image inline for hero -->
+      <div class="banner__overlay glass">
+        <div class="banner__meta">
+          <h1 id="rName">Restaurant Name</h1>
+          <div class="muted" id="rCategory">Category • City</div>
+        </div>
+        <div class="badge influencer-badge">Mayur Recommends</div>
+      </div>
+    </section>
+
+    <section class="container section glass detail">
+      <div class="detail__left">
+        <p id="rShort">Short description about the restaurant goes here. Replace with real content later.</p>
+
+        <div class="row">
+          <div class="info card">
+            <h4>Signature Dishes</h4>
+            <ul id="rDishes" class="muted"></ul>
+          </div>
+
+          <div class="info card">
+            <h4>Price Range</h4>
+            <p id="rPrice" class="muted">$$</p>
+            <h4>Ambience</h4>
+            <p id="rAmbience" class="muted">Cozy • Modern • Lively</p>
+          </div>
+        </div>
+
+        <blockquote class="quote glass">
+          <p id="rQuote">"We cook from heart and we grew from a single street stall..."</p>
+          <cite id="rOwner">— Owner Name</cite>
+        </blockquote>
+
+        <div class="gallery" id="rGallery">
+          <!-- JS inserts gallery images -->
+        </div>
+      </div>
+
+      <aside class="detail__right">
+        <div class="card sticky">
+          <h4>Details</h4>
+          <p><strong>Location:</strong> <span id="rLocation">City, Address</span></p>
+          <p><strong>Hours:</strong> <span id="rHours">10:00 — 22:00</span></p>
+          <p><strong>Contact:</strong> <a id="rPhone" href="tel:+621234567890">+62 123 456 7890</a></p>
+          <p><strong>Website:</strong> <a id="rWebsite" href="#" target="_blank">Visit</a></p>
+          <div class="muted">Share: <button class="btn btn--ghost" id="shareBtn">Copy link</button></div>
+        </div>
+
+        <div class="card map-card glass">
+          <h4>Map (placeholder)</h4>
+          <div class="map-placeholder muted">Map will be embedded here later</div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <!-- Lightbox modal for gallery -->
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <button id="lbClose" class="lb-close" aria-label="Close">×</button>
+    <img id="lbImg" src="" alt="Gallery image">
+    <div id="lbCaption" class="muted"></div>
+  </div>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© <span id="year3"></span> Top Indonesian Restaurants</div>
+      <div class="muted">Curated picks • Neon glass UI</div>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

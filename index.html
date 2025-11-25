@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Home Page - Dark / Neon / Glassmorphism -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Top Indonesian Restaurants & Cafés — Home</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="smooth">
+  <!-- NAV -->
+  <header class="nav">
+    <div class="nav__brand">
+      <div class="logo-glow">Top Indo</div>
+      <small class="muted">Restaurants & Cafés</small>
+    </div>
+    <nav class="nav__links">
+      <a href="index.html">Home</a>
+      <a href="restaurants.html">Restaurants</a>
+      <a href="about.html">About</a>
+      <a href="contact.html" class="btn btn--accent">Contact</a>
+    </nav>
+  </header>
+
+  <!-- HERO (full-screen with parallax background) -->
+  <section id="hero" class="hero">
+    <div class="hero__bg" aria-hidden="true"></div> <!-- parallax layer -->
+    <div class="container hero__content glass">
+      <h1 class="hero__title">Discover Indonesia's Finest — <span class="neon">Taste the Craft</span></h1>
+      <p class="hero__subtitle">Curated experiences across Jakarta, Bali, Bandung, and beyond. Modern dining, cafés & hidden gems.</p>
+
+      <!-- Search bar -->
+      <div class="search">
+        <input id="homeSearch" type="search" placeholder="Search restaurants, cities, or dishes..." aria-label="Search restaurants">
+        <button id="homeSearchBtn" class="btn">Search</button>
+      </div>
+
+      <!-- Featured restaurants horizontal cards -->
+      <div class="featured">
+        <h3>Featured</h3>
+        <div id="featuredList" class="featured__list">
+          <!-- JS will inject featured cards -->
+        </div>
+      </div>
+
+      <div class="hero__cta">
+        <a href="restaurants.html" class="btn btn--big">Browse All Restaurants</a>
+        <a href="about.html" class="link muted">Meet the curator</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main content: Small intro + preview grid -->
+  <main class="container main">
+    <section class="glass section">
+      <div class="section__head">
+        <h2>Why these picks?</h2>
+        <p class="muted">Every place is visited and vetted for ambience, flavor, and personality.</p>
+      </div>
+
+      <div class="cards cards--preview" id="previewGrid">
+        <!-- JS will insert three preview cards -->
+      </div>
+    </section>
+
+    <!-- Influencer / badge CTA -->
+    <section class="glass section influencer">
+      <div>
+        <h3>Mayur Recommends</h3>
+        <p class="muted">Personal picks from Mayur — seasonal, limited, and unforgettable.</p>
+      </div>
+      <div class="influencer__badge glass">
+        <img src="https://picsum.photos/seed/mayur/120/120" alt="Mayur" class="avatar">
+        <div>
+          <strong>Mayur Sharma</strong>
+          <small class="muted">Food curator & storyteller</small>
+        </div>
+        <a href="about.html" class="btn btn--ghost">About Mayur</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© <span id="year"></span> Top Indonesian Restaurants</div>
+      <div class="muted">Built with ♥ • Dark Neon Theme</div>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

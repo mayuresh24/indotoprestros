@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Contact Page -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Contact — Collaborate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="smooth">
+  <header class="nav">
+    <div class="nav__brand"><div class="logo-glow">Top Indo</div><small class="muted">Restaurants & Cafés</small></div>
+    <nav class="nav__links">
+      <a href="index.html">Home</a>
+      <a href="restaurants.html">Restaurants</a>
+      <a href="about.html">About</a>
+      <a href="contact.html" class="btn btn--accent">Contact</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="glass section contact">
+      <h1>Get in touch</h1>
+      <p class="muted">For collaborations, interviews, or press — reach out.</p>
+
+      <form id="contactForm" class="contact__form">
+        <label>
+          Name
+          <input name="name" required type="text" placeholder="Your name">
+        </label>
+        <label>
+          Email
+          <input name="email" required type="email" placeholder="you@example.com">
+        </label>
+        <label>
+          Message
+          <textarea name="message" rows="6" required placeholder="Tell us about your collaboration..."></textarea>
+        </label>
+        <div class="form-row">
+          <button type="submit" class="btn btn--accent">Send message</button>
+          <button type="button" id="saveDraft" class="btn btn--ghost">Save draft</button>
+        </div>
+        <p id="contactStatus" class="muted"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© <span id="year5"></span> Top Indonesian Restaurants</div>
+      <div class="muted">Let's build stories together.</div>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

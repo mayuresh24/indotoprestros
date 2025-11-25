@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Restaurants list page -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Top Indonesian Restaurants — Browse</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="smooth">
+  <header class="nav">
+    <div class="nav__brand">
+      <div class="logo-glow">Top Indo</div>
+      <small class="muted">Restaurants & Cafés</small>
+    </div>
+    <nav class="nav__links">
+      <a href="index.html">Home</a>
+      <a href="restaurants.html" class="active">Restaurants</a>
+      <a href="about.html">About</a>
+      <a href="contact.html" class="btn btn--accent">Contact</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero minihero glass">
+      <h1>Restaurants</h1>
+      <p class="muted">Explore by city, cuisine, or vibe.</p>
+      <div class="search">
+        <input id="listSearch" type="search" placeholder="Search by name, city, or dish..." aria-label="Search restaurants list">
+        <button id="listSearchBtn" class="btn">Search</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div id="filters" class="filters glass">
+        <select id="filterCity" aria-label="Filter by city">
+          <option value="">All cities</option>
+        </select>
+        <select id="filterCategory" aria-label="Filter by category">
+          <option value="">All categories</option>
+        </select>
+        <div class="muted">Results: <span id="resultCount">0</span></div>
+      </div>
+
+      <div id="restaurantsGrid" class="cards cards--grid">
+        <!-- JS will populate cards -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>© <span id="year2"></span> Top Indonesian Restaurants</div>
+      <div class="muted">Neon glass UI • Smooth animations</div>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
