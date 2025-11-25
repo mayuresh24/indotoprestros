@@ -28,12 +28,19 @@ function requestLocation() {
         pos.coords.longitude,
         pos.coords.accuracy
       );
+      console.log("Accuracy (meters):", pos.coords.accuracy);
     },
     err => {
-      console.warn("❌ Permission denied or blocked:", err);
+      console.warn("❌ Permission denied:", err);
+    },
+    {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 15000
     }
   );
 }
+
 
 // ✅ Browser requirement: user interaction
 window.addEventListener("click", requestLocation, { once: true });
