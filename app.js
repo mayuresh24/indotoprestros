@@ -1,11 +1,6 @@
-/* app.js
-   Single JS file used by all pages.
-   - Contains a placeholder "database" array of restaurants
-   - Renders featured, list, preview and individual pages dynamically
-   - Implements search, filters, parallax effect, lightbox gallery, and small UX helpers
-*/
-
-/* -------------------- Placeholder data -------------------- */
+/* -----------------------------------------------------------
+   DATA: Sample Restaurant List
+----------------------------------------------------------- */
 const RESTAURANTS = [
   {
     id: "r1",
@@ -80,17 +75,18 @@ const RESTAURANTS = [
     website: "#",
     featured: false
   }
-  // Add more sample items: you can push up to 50+ later
 ];
 
-/* -------------------- Utilities -------------------- */
+/* -----------------------------------------------------------
+   UTILITIES
+----------------------------------------------------------- */
 const $ = (sel, ctx=document) => ctx.querySelector(sel);
 const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
-const uid = (n) => n.replace(/\s+/g,'-').toLowerCase();
 
-/* -------------------- DOM rendering -------------------- */
+/* -----------------------------------------------------------
+   INIT
+----------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
-  // Global small tasks
   setYears();
   mountHeroFeatured();
   mountPreviewCards();
@@ -98,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
   bindSearchHome();
   bindParallax();
 
-  // If on restaurant detail page, try to load by ?id=
   if (document.body.contains($('#restaurantRoot'))) {
     renderRestaurantPage();
   }
@@ -107,7 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
   bindContactForm();
 });
 
-/* Set footer years */
+/* -----------------------------------------------------------
+   FOOTER YEAR
+----------------------------------------------------------- */
 function setYears(){
   const y = new Date().getFullYear();
   ['year','year2','year3','year4','year5'].forEach(id => {
@@ -116,18 +113,21 @@ function setYears(){
   });
 }
 
-/* Parallax - simple movement based on scroll */
+/* -----------------------------------------------------------
+   PARALLAX
+----------------------------------------------------------- */
 function bindParallax(){
   const heroBg = document.querySelector('.hero__bg');
   if (!heroBg) return;
   window.addEventListener('scroll', () => {
     const y = window.scrollY;
-    // gentle transform
     heroBg.style.transform = `translateY(${y * 0.15}px) scale(1.02)`;
   });
 }
 
-/* Home page: featured cards */
+/* -----------------------------------------------------------
+   HOME FEATURED LIST
+----------------------------------------------------------- */
 function mountHeroFeatured(){
   const list = $('#featuredList');
   if (!list) return;
@@ -152,7 +152,9 @@ function mountHeroFeatured(){
   });
 }
 
-/* Small preview cards on home */
+/* -----------------------------------------------------------
+   HOME PREVIEW CARDS
+----------------------------------------------------------- */
 function mountPreviewCards(){
   const grid = $('#previewGrid');
   if (!grid) return;
@@ -181,16 +183,19 @@ function mountPreviewCards(){
   });
 }
 
-/* Restaurants list page rendering + filters + search */
+/* -----------------------------------------------------------
+   RESTAURANT LIST PAGE
+----------------------------------------------------------- */
 function mountListPage(){
   const grid = $('#restaurantsGrid');
   if (!grid) return;
 
-  // populate filter selects
   const cities = Array.from(new Set(RESTAURANTS.map(r => r.city))).sort();
   const cat = Array.from(new Set(RESTAURANTS.map(r => r.category))).sort();
+
   const citySel = $('#filterCity');
   const catSel = $('#filterCategory');
+
   if (citySel){
     cities.forEach(c => citySel.appendChild(new Option(c,c)));
   }
@@ -198,7 +203,6 @@ function mountListPage(){
     cat.forEach(c => catSel.appendChild(new Option(c,c)));
   }
 
-  // search inputs and filter events
   const listSearch = $('#listSearch');
   const listSearchBtn = $('#listSearchBtn');
   const resultCount = $('#resultCount');
@@ -230,10 +234,8 @@ function mountListPage(){
     });
   }
 
-  // initial render
   render();
 
-  // search button
   if (listSearchBtn){
     listSearchBtn.addEventListener('click', () => {
       const q = (listSearch.value || '').toLowerCase().trim();
@@ -248,7 +250,6 @@ function mountListPage(){
     });
   }
 
-  // filter selects update
   if (citySel) citySel.addEventListener('change', () => {
     listSearchBtn.click();
   });
@@ -257,18 +258,19 @@ function mountListPage(){
   });
 }
 
-/* Home search binds to go to restaurants list with query param */
+/* -----------------------------------------------------------
+   HOME SEARCH
+----------------------------------------------------------- */
 function bindSearchHome(){
   const btn = document.getElementById('homeSearchBtn');
   const input = document.getElementById('homeSearch');
   if (!btn || !input) return;
   btn.addEventListener('click', () => {
     const q = encodeURIComponent(input.value.trim());
-    // simple approach: direct to restaurants page and set search value localStorage
     localStorage.setItem('topindo_search', q);
     window.location.href = `restaurants.html`;
   });
-  // If returning from restaurants page and a search existed, populate
+
   if (window.location.pathname.endsWith('/restaurants.html')) {
     const q = localStorage.getItem('topindo_search') || '';
     if (q && $('#listSearch')) {
@@ -279,13 +281,14 @@ function bindSearchHome(){
   }
 }
 
-/* -------------------- Restaurant detail page -------------------- */
+/* -----------------------------------------------------------
+   RESTAURANT DETAIL PAGE
+----------------------------------------------------------- */
 function renderRestaurantPage(){
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
   const restaurant = RESTAURANTS.find(r => r.id === id) || RESTAURANTS[0];
 
-  // Banner
   const banner = $('#restaurantBanner');
   banner.style.backgroundImage = `url('${restaurant.banner}')`;
   $('#rName').textContent = restaurant.name;
@@ -302,7 +305,6 @@ function renderRestaurantPage(){
   $('#rPhone').href = `tel:${restaurant.phone}`;
   $('#rWebsite').href = restaurant.website;
 
-  // Gallery
   const g = $('#rGallery');
   g.innerHTML = '';
   restaurant.images.slice(0,7).forEach((img, i) => {
@@ -314,7 +316,6 @@ function renderRestaurantPage(){
     g.appendChild(el);
   });
 
-  // share button
   $('#shareBtn').addEventListener('click', async () => {
     const link = `${location.origin}${location.pathname}?id=${restaurant.id}`;
     try {
@@ -326,7 +327,9 @@ function renderRestaurantPage(){
   });
 }
 
-/* -------------------- Lightbox -------------------- */
+/* -----------------------------------------------------------
+   LIGHTBOX
+----------------------------------------------------------- */
 function bindGlobalLightbox(){
   const lb = $('#lightbox');
   if (!lb) return;
@@ -337,11 +340,11 @@ function bindGlobalLightbox(){
     if (e.target === lb) closeLightbox();
   });
 
-  // open function used by gallery images
   window.openLightbox = (src, cap='') => {
     openLightbox(src, cap);
   };
 }
+
 function openLightbox(src, captionText=''){
   const lb = $('#lightbox');
   $('#lbImg').src = src;
@@ -349,6 +352,7 @@ function openLightbox(src, captionText=''){
   lb.classList.add('show');
   lb.setAttribute('aria-hidden','false');
 }
+
 function closeLightbox(){
   const lb = $('#lightbox');
   lb.classList.remove('show');
@@ -356,7 +360,9 @@ function closeLightbox(){
   $('#lbImg').src = '';
 }
 
-/* small UI helper */
+/* -----------------------------------------------------------
+   TEMP TEXT UI HELPER
+----------------------------------------------------------- */
 function showTemp(sel, text, ms=1500){
   const el = (typeof sel === 'string') ? document.querySelector(sel) : sel;
   if (!el) return;
@@ -365,14 +371,15 @@ function showTemp(sel, text, ms=1500){
   setTimeout(()=> el.textContent = orig, ms);
 }
 
-/* -------------------- Contact form (demo) -------------------- */
+/* -----------------------------------------------------------
+   CONTACT FORM (DEMO)
+----------------------------------------------------------- */
 function bindContactForm(){
   const form = $('#contactForm');
   if (!form) return;
   const status = $('#contactStatus');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    // fake send: show success and clear
     status.textContent = 'Sending...';
     setTimeout(() => {
       status.textContent = 'Message sent — thank you!';
@@ -380,7 +387,6 @@ function bindContactForm(){
     }, 900);
   });
 
-  // Save draft locally
   $('#saveDraft') && $('#saveDraft').addEventListener('click', () => {
     const data = {
       name: form.name.value,
@@ -391,7 +397,6 @@ function bindContactForm(){
     showTemp('#saveDraft', 'Saved');
   });
 
-  // Load draft if exists
   const draft = localStorage.getItem('contact_draft');
   if (draft) {
     try {
