@@ -1,6 +1,8 @@
-import { db, collection, addDoc } from "./firebase-config.js";
+// ✅ Import Firestore tools (v12.6.0)
+import { db } from "./firebase-config.js";
+import { collection, addDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-// ✅ Save to Firestore
+// ✅ Save location to Firestore
 async function saveLocation(lat, lon, acc) {
   try {
     await addDoc(collection(db, "locations"), {
@@ -9,24 +11,27 @@ async function saveLocation(lat, lon, acc) {
       accuracy: acc,
       timestamp: new Date().toISOString()
     });
-    console.log("✅ Location saved!");
+    console.log("✅ Location saved to Firestore!");
   } catch (err) {
-    console.error("❌ Error saving:", err);
+    console.error("❌ Error saving location:", err);
   }
 }
 
-// ✅ Ask for location AFTER first tap
+// ✅ Trigger after first tap (browser requirement)
 function requestLocation() {
-  navigator.geolocation.getCurrentPosition(pos => {
-    saveLocation(
-      pos.coords.latitude,
-      pos.coords.longitude,
-      pos.coords.accuracy
-    );
-  }, err => {
-    console.warn("User denied or blocked:", err);
-  });
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      saveLocation(
+        pos.coords.latitude,
+        pos.coords.longitude,
+        pos.coords.accuracy
+      );
+    },
+    err => {
+      console.warn("❌ Permission denied or blocked:", err);
+    }
+  );
 }
 
-// ✅ Browser rule: user must interact once
+// ✅ Browser MUST see a user action
 window.addEventListener("click", requestLocation, { once: true });
