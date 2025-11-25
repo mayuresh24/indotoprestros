@@ -91,6 +91,22 @@
   </footer>
 
 <script src="app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js"></script>
+ const firebaseConfig = {
+    apiKey: "AIzaSyC6EOX2i_6vCqz-EwiopQyd0qwtsomOppw",
+    authDomain: "sample-4d3c3.firebaseapp.com",
+    projectId: "sample-4d3c3",
+    storageBucket: "sample-4d3c3.firebasestorage.app",
+    messagingSenderId: "1064954656144",
+    appId: "1:1064954656144:web:34252bec01b29ae5aaaf15",
+    measurementId: "G-ZBQ1PHV7BF"
+  };
 
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+
+  
 </body>
 </html>
