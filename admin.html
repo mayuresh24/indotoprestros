@@ -1,96 +1,60 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Location Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard — Locations</title>
+
   <style>
-    body{
-      font-family: system-ui, sans-serif;
-      margin:0; padding:16px;
-      background:#020617; color:#e5e7eb;
+    body {
+      font-family: Poppins, sans-serif;
+      background: #0f172a;
+      color: white;
+      margin: 0;
+      padding: 20px;
     }
-    h1{ font-size:20px; margin-bottom:10px; }
-    table{
-      width:100%; border-collapse:collapse;
-      margin-top:10px; font-size:13px;
+    h1 { text-align: center; }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      overflow: hidden;
     }
-    th,td{
-      border:1px solid #334155;
-      padding:6px 8px;
+    
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
-    th{ background:#0f172a; }
-    tr:nth-child(even){ background:#020617; }
-    tr:nth-child(odd){ background:#030712; }
-    .small{ font-size:11px; opacity:0.8; }
-    button{ padding:6px 10px; margin-top:8px; }
+
+    th {
+      background: rgba(255,255,255,0.15);
+    }
   </style>
 </head>
-<body>
-  <h1>Saved Locations (Admin)</h1>
-  <button onclick="loadLocations()">Reload</button>
-  <div id="status" class="small">Click “Reload” to fetch data.</div>
 
-  <table id="locTable" style="display:none;">
+<body>
+
+  <h1>📍 Location Dashboard</h1>
+  <p style="text-align:center">Latest captured user locations</p>
+
+  <table id="locationsTable">
     <thead>
       <tr>
-        <th>#</th>
-        <th>Lat</th>
-        <th>Lon</th>
+        <th>Timestamp</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
         <th>Accuracy (m)</th>
-        <th>Time (UTC)</th>
-        <th>User-Agent</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Country</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <script>
-    async function loadLocations(){
-      const status = document.getElementById("status");
-      const table = document.getElementById("locTable");
-      const tbody = table.querySelector("tbody");
-
-      status.textContent = "Loading...";
-      table.style.display = "none";
-      tbody.innerHTML = "";
-
-      try {
-        const res = await fetch("/get-locations");
-        const data = await res.json();
-        if (!data.ok) {
-          status.textContent = "Error: " + (data.error || "unknown");
-          return;
-        }
-
-        if (!data.items.length) {
-          status.textContent = "No locations stored yet.";
-          return;
-        }
-
-        data.items.forEach((item, i) => {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${i+1}</td>
-            <td>${item.lat ?? ""}</td>
-            <td>${item.lon ?? ""}</td>
-            <td>${item.accuracy ?? ""}</td>
-            <td class="small">${item.ts ?? ""}</td>
-            <td class="small">${item.userAgent ?? ""}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        table.style.display = "table";
-        status.textContent = `Loaded ${data.items.length} locations.`;
-      } catch (e) {
-        console.error(e);
-        status.textContent = "Failed to load locations.";
-      }
-    }
-
-    // auto load once
-    loadLocations();
-  </script>
+  <script type="module" src="admin.js"></script>
 </body>
 </html>
