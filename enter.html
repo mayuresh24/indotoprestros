@@ -15,6 +15,7 @@
     align-items: center;
     height: 100vh;
     text-align: center;
+    padding:20px;
   }
   button {
     padding: 14px 20px;
@@ -32,22 +33,24 @@
 
 <div>
   <h2>📍 Please Tap to Allow Location</h2>
-  <p>This is required to continue.</p>
+  <p>This is required before visiting the website.</p>
   <button id="tapBtn">Tap to Continue</button>
 </div>
 
-<!-- Load Firebase and location logic -->
+<!-- Load Firebase config -->
 <script type="module" src="./firebase-config.js"></script>
+
+<!-- Load location logic (DO NOT import any function!) -->
 <script type="module" src="./location.js"></script>
 
 <script>
   document.getElementById("tapBtn").addEventListener("click", () => {
-    console.log("Button tapped — location.js will now run");
-    
-    // Allow 1.2 sec for location to save
+    console.log("Tap detected — triggering location.js");
+
+    // Give time for saving location
     setTimeout(() => {
       window.location.href = "index.html";
-    }, 1200);
+    }, 1500);
   });
 </script>
 
