@@ -30,15 +30,14 @@ const RESTAURANTS = [
     city: "Kota Bogor",
     category: "Sea Food",
     short: "140+ delicious dishes",
-    banner: "",
+banner: "https://picsum.photos/seed/r1/1400/700",
     images: [
-      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzRFFGbt6wRMRPddcSjuvaIPjnPNdySGIh9RFRBBbLXYOlkm0YVNqJ-d9cJ3Q9mPSZcOtH4e3Iavqdnz5wnFv6I8ShDxWp6HO27zPAs6uGtp5W9wlh6AeaN6PXeZAJ8X18N6OLX=s680-w680-h510-rw",
-      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx-NLbKhzyTQiQ19tZtDk7ZtvSZMVQmNoVVyIQzDmAW9ziEY5Tccani39uh2wlCtqDp_znlKADUdYcHO7BaF-W3zZiyc3jIneOWyU-o48k7BRRNyWag2cX7poQNvWDhs964mp8=s680-w680-h510-rw",
-      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzU1yTiQIplnQXmBiA615Kcr8HA4CvDnaUzuQuHhPTK8ww5xGKuVDyDhhWq_NjR1dphzGNDyYiCdzWcv9_NwOj85WKt4MOj6PqpUP3QEbzn8NHAo6Ojhfuik6IVXva1KHmrZ36W=s680-w680-h510-rw",
-      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxhNQ7UyMgCl2_vpWM4sa_eU5lkL4Eft0K9hcWY6ketRpkX1Trx-SgyKFMy9FCc0AzkOYMolMaQmFWIxNHOn9sLROMcB9oAiVvz9xMb7cIQwpVNJcT7IHHVsjZHCHIZI3qGIiFvBg=s680-w680-h510-rw",
-      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwJYnPWeHPZMxxGDGvK9Dc3SFNvrOgdl480weOLY8WkagqMiey3QX4N6DjIeQeCITn7GmVv8_jnvNCRk6Q-zMGa64yuZo_3xnj8T3R42Fvh01NbsqjSVo6-7jHUk4f3qDIc7TcYQQ=s680-w680-h510-rw"
-    ],
-    dishes: ["Sup Gurame Fillet", "Udang Bakar","Sup Udang","Teri Balado","Cumi Goreng","Lain Lain"],
+      "https://picsum.photos/seed/r1a/800/600",
+      "https://picsum.photos/seed/r1b/800/600",
+      "https://picsum.photos/seed/r1c/800/600",
+      "https://picsum.photos/seed/r1d/800/600",
+      "https://picsum.photos/seed/r1e/800/600"
+    ],    dishes: ["Sup Gurame Fillet", "Udang Bakar","Sup Udang","Teri Balado","Cumi Goreng","Lain Lain"],
     price: "Rp 50,000–1,00,000",
     ambience: "Minimal • Cozy",
     ownerQuote: "We roast to highlight origin notes — every cup should tell a story.",
