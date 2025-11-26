@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tap to Enter</title>
+
+  <style>
+    body {
+      margin:0;
+      background:#0d0d0d;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      color:white;
+      font-family:'Poppins',sans-serif;
+    }
+    .box {
+      background:rgba(255,255,255,0.07);
+      padding:30px;
+      border-radius:15px;
+      text-align:center;
+      width:85%;
+      max-width:350px;
+      backdrop-filter:blur(6px);
+    }
+    button {
+      width:100%;
+      margin-top:20px;
+      padding:15px;
+      border:0;
+      border-radius:10px;
+      background:linear-gradient(90deg,#ff5fa9,#ff2d6e);
+      font-size:16px;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    button:active{
+      transform:scale(0.95);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+    <h2>Tap to Enter</h2>
+    <p>Allow location to continue</p>
+    <button id="enterBtn">ENTER</button>
+  </div>
+
+  <!-- Firebase Config -->
+  <script type="module" src="firebase-config.js"></script>
+
+  <!-- Location Logic -->
+  <script type="module">
+    import { requestLocation } from "./location.js";
+
+    document.getElementById("enterBtn").addEventListener("click", () => {
+      requestLocation();
+    });
+  </script>
+
+</body>
+</html>
