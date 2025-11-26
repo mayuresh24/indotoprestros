@@ -23,6 +23,7 @@
       border-radius: 12px;
       overflow: hidden;
     }
+    
     th, td {
       padding: 12px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -31,30 +32,28 @@
       background: rgba(255,255,255,0.15);
     }
 
-    /* Login Overlay */
+    /* LOGIN SCREEN */
     #loginScreen {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.95);
+      background: rgba(0,0,0,0.95);
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      z-index: 9999;
       color: white;
-      padding: 20px;
-      box-sizing: border-box;
+      z-index: 9999;
     }
 
     #loginBox {
       background: rgba(255,255,255,0.06);
       padding: 25px;
       border-radius: 12px;
+      width: 90%;
+      max-width: 350px;
       text-align: center;
-      width: 100%;
-      max-width: 380px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
     }
 
     input {
@@ -63,42 +62,44 @@
       border-radius: 8px;
       border: none;
       margin-top: 10px;
-      box-sizing: border-box;
-      font-size: 15px;
-      background: rgba(255,255,255,0.02);
+      background: rgba(255,255,255,0.08);
       color: white;
+      font-size: 15px;
     }
 
     button {
-      margin-top: 15px;
       width: 100%;
       padding: 12px;
-      background: linear-gradient(90deg,#34d399,#10b981);
-      border: none;
+      margin-top: 15px;
+      background: #38bdf8;
       color: black;
+      border: none;
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 15px;
     }
 
-    #loginMsg { color:#f87171; margin-top:10px; min-height:18px; }
+    #loginMsg {
+      color: #f87171;
+      margin-top: 10px;
+      min-height: 18px;
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- LOGIN OVERLAY -->
+  <!-- LOGIN SCREEN -->
   <div id="loginScreen">
     <div id="loginBox">
       <h2>🔐 Admin Login</h2>
-      <input type="password" id="adminPass" placeholder="Enter password">
-      <button id="loginBtn">Login</button>
+      <input id="adminPass" type="password" placeholder="Enter password">
+      <button onclick="verifyLogin()">Login</button>
       <p id="loginMsg"></p>
     </div>
   </div>
 
-  <!-- Dashboard -->
+  <!-- DASHBOARD -->
   <h1>📍 Location Dashboard</h1>
   <p style="text-align:center">Latest captured user locations</p>
 
@@ -120,51 +121,29 @@
   <script type="module" src="admin.js"></script>
 
   <script>
-    // === CORRECT SHA-256 for password "desh21mayu50" ===
-    // Computed value: a273228b4a771a0c636aa2928cf068a5e3dc63bef89d8595b4037b8e843ac3a3
-    const correctHash = "a273228b4a771a0c636aa2928cf068a5e3dc63bef89d8595b4037b8e843ac3a3";
+    const ADMIN_PASSWORD = "desh21mayu50";
 
-    async function sha256(str) {
-      const buf = new TextEncoder().encode(str);
-      const digest = await crypto.subtle.digest("SHA-256", buf);
-      return Array.from(new Uint8Array(digest))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
-    }
+    function verifyLogin() {
+      const input = document.getElementById("adminPass").value.trim();
+      const msg = document.getElementById("loginMsg");
 
-    async function verifyLogin() {
-      const passEl = document.getElementById("adminPass");
-      const msgEl = document.getElementById("loginMsg");
-      msgEl.textContent = "";
-
-      let pass = passEl.value || "";
-      pass = pass.trim(); // remove accidental whitespace
-
-      if (!pass) {
-        msgEl.textContent = "Please enter password";
+      if (!input) {
+        msg.textContent = "Please enter password";
         return;
       }
 
-      try {
-        const hash = await sha256(pass);
-        if (hash === correctHash) {
-          // Hide login overlay and load admin data
-          document.getElementById("loginScreen").style.display = "none";
-          // Optional: trigger admin.js to refresh or load if needed
-        } else {
-          msgEl.textContent = "❌ Incorrect password";
-        }
-      } catch (err) {
-        console.error("Hash error", err);
-        msgEl.textContent = "Error verifying password";
+      if (input === ADMIN_PASSWORD) {
+        document.getElementById("loginScreen").style.display = "none";
+      } else {
+        msg.textContent = "❌ Incorrect password";
       }
     }
 
-    document.getElementById("loginBtn").addEventListener("click", verifyLogin);
-    // allow Enter key
-    document.getElementById("adminPass").addEventListener("keydown", (e) => {
+    // Enter key
+    document.getElementById("adminPass").addEventListener("keydown", e => {
       if (e.key === "Enter") verifyLogin();
     });
   </script>
+
 </body>
 </html>
