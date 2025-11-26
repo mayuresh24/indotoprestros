@@ -1,11 +1,9 @@
-/* -----------------------------------------------------------
-   DATA: Sample Restaurant List
------------------------------------------------------------ */
+
 const RESTAURANTS = [
   {
     id: "r1",
-    name: "Warung Matahari",
-    city: "Bali",
+    name: "Raindear Coffee & Kitchen",
+    city: "Kota Bogor",
     category: "Modern Indonesian",
     short: "A coastal bistro blending coastal flavors with slow-cooked classics.",
     banner: "https://picsum.photos/seed/r1/1400/700",
@@ -28,25 +26,25 @@ const RESTAURANTS = [
   },
   {
     id: "r2",
-    name: "Kopi Sore",
-    city: "Jakarta",
-    category: "Specialty Café",
-    short: "A small-batch coffee spot focusing on locally sourced beans and clean pastries.",
-    banner: "https://picsum.photos/seed/r2/1400/700",
+    name: "Karimata",
+    city: "Kota Bogor",
+    category: "Sea Food",
+    short: "140+ delicious dishes",
+    banner: "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzY9T_qFnruxeOVDULhON-G6Lu2brcAZ2OWylCe6222bPuyfXIHbACKcxFyOpFyoA6FRXPChLcy9WfpdOTCP71gvbZTaoRa8gTInitd_th5VM7JBJa4hXX7-jF-VEBdsL0502GC=s680-w680-h510-rw,
     images: [
-      "https://picsum.photos/seed/r2a/800/600",
-      "https://picsum.photos/seed/r2b/800/600",
-      "https://picsum.photos/seed/r2c/800/600",
-      "https://picsum.photos/seed/r2d/800/600",
-      "https://picsum.photos/seed/r2e/800/600"
+      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzRFFGbt6wRMRPddcSjuvaIPjnPNdySGIh9RFRBBbLXYOlkm0YVNqJ-d9cJ3Q9mPSZcOtH4e3Iavqdnz5wnFv6I8ShDxWp6HO27zPAs6uGtp5W9wlh6AeaN6PXeZAJ8X18N6OLX=s680-w680-h510-rw",
+      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx-NLbKhzyTQiQ19tZtDk7ZtvSZMVQmNoVVyIQzDmAW9ziEY5Tccani39uh2wlCtqDp_znlKADUdYcHO7BaF-W3zZiyc3jIneOWyU-o48k7BRRNyWag2cX7poQNvWDhs964mp8=s680-w680-h510-rw",
+      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzU1yTiQIplnQXmBiA615Kcr8HA4CvDnaUzuQuHhPTK8ww5xGKuVDyDhhWq_NjR1dphzGNDyYiCdzWcv9_NwOj85WKt4MOj6PqpUP3QEbzn8NHAo6Ojhfuik6IVXva1KHmrZ36W=s680-w680-h510-rw",
+      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSxhNQ7UyMgCl2_vpWM4sa_eU5lkL4Eft0K9hcWY6ketRpkX1Trx-SgyKFMy9FCc0AzkOYMolMaQmFWIxNHOn9sLROMcB9oAiVvz9xMb7cIQwpVNJcT7IHHVsjZHCHIZI3qGIiFvBg=s680-w680-h510-rw",
+      "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSwJYnPWeHPZMxxGDGvK9Dc3SFNvrOgdl480weOLY8WkagqMiey3QX4N6DjIeQeCITn7GmVv8_jnvNCRk6Q-zMGa64yuZo_3xnj8T3R42Fvh01NbsqjSVo6-7jHUk4f3qDIc7TcYQQ=s680-w680-h510-rw"
     ],
-    dishes: ["Single-origin espresso", "Cardamom croissant"],
-    price: "$",
+    dishes: ["Sup Gurame Fillet", "Udang Bakar","Sup Udang","Teri Balado","Cumi Goreng","Lain Lain"],
+    price: "Rp 50,000–1,00,000",
     ambience: "Minimal • Cozy",
     ownerQuote: "We roast to highlight origin notes — every cup should tell a story.",
-    location: "Kemang, Jakarta",
-    hours: "07:00 — 19:00",
-    phone: "+62 811 2345 6789",
+    location: "Kota Bogor, Jakarta",
+    hours: "11:00 — 21:00",
+    phone: "+62 812-9509-9174",
     website: "#",
     featured: true
   },
