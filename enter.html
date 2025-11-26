@@ -2,66 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Tap to Enter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Top Indonesian restros near you</title>
 
   <style>
     body {
-      margin:0;
-      background:#0d0d0d;
-      height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      color:white;
-      font-family:'Poppins',sans-serif;
+      margin: 0;
+      background: #0f172a;
+      font-family: Poppins, sans-serif;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
     }
-    .box {
-      background:rgba(255,255,255,0.07);
-      padding:30px;
-      border-radius:15px;
-      text-align:center;
-      width:85%;
-      max-width:350px;
-      backdrop-filter:blur(6px);
+
+    #box {
+      background: rgba(255,255,255,0.06);
+      padding: 30px 20px;
+      border-radius: 18px;
+      width: 90%;
+      max-width: 340px;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.1);
     }
+
     button {
-      width:100%;
-      margin-top:20px;
-      padding:15px;
-      border:0;
-      border-radius:10px;
-      background:linear-gradient(90deg,#ff5fa9,#ff2d6e);
-      font-size:16px;
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
+      margin-top: 20px;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background: linear-gradient(90deg, #ff7ab6, #ff5f9e);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
     }
-    button:active{
-      transform:scale(0.95);
+
+    #loading {
+      display: none;
+      margin-top: 18px;
+      opacity: 0.9;
+      font-size: 14px;
     }
   </style>
 </head>
 
 <body>
+  <div id="box">
+    <h2>Find best top indonesian restros near you ✨</h2>
+    <p>Please tap the button below to continue.</p>
 
-  <div class="box">
-    <h2>Tap to Enter</h2>
-    <p>Allow location to continue</p>
     <button id="enterBtn">ENTER</button>
+
+    <div id="loading">⏳ Getting your location…</div>
   </div>
 
-  <!-- Firebase Config -->
-  <script type="module" src="firebase-config.js"></script>
-
-  <!-- Location Logic -->
   <script type="module">
     import { requestLocation } from "./location.js";
 
-    document.getElementById("enterBtn").addEventListener("click", () => {
-      requestLocation();
+    const btn = document.getElementById("enterBtn");
+    const loading = document.getElementById("loading");
+
+    btn.addEventListener("click", async () => {
+      // UI updates
+      btn.style.display = "none";
+      loading.style.display = "block";
+
+      try {
+        // This waits until GPS + reverse geocode + Firestore save is DONE
+        await requestLocation();
+
+        // SUCCESS — redirect now
+        window.location.href = "index.html";
+
+      } catch (e) {
+        loading.textContent = "❌ Could not get location. Please allow and try again.";
+        btn.style.display = "block";
+      }
     });
   </script>
-
 </body>
 </html>
