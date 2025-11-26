@@ -36,43 +36,53 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.9);
+      background: rgba(0, 0, 0, 0.95);
       display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
       z-index: 9999;
       color: white;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     #loginBox {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.06);
       padding: 25px;
       border-radius: 12px;
       text-align: center;
-      width: 90%;
-      max-width: 350px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
     }
 
     input {
       width: 100%;
-      padding: 10px;
+      padding: 12px;
       border-radius: 8px;
       border: none;
       margin-top: 10px;
+      box-sizing: border-box;
+      font-size: 15px;
+      background: rgba(255,255,255,0.02);
+      color: white;
     }
 
     button {
       margin-top: 15px;
       width: 100%;
-      padding: 10px;
-      background: #38bdf8;
+      padding: 12px;
+      background: linear-gradient(90deg,#34d399,#10b981);
       border: none;
       color: black;
       font-weight: bold;
       border-radius: 8px;
       cursor: pointer;
+      font-size: 15px;
     }
+
+    #loginMsg { color:#f87171; margin-top:10px; min-height:18px; }
   </style>
 </head>
 
@@ -83,8 +93,8 @@
     <div id="loginBox">
       <h2>🔐 Admin Login</h2>
       <input type="password" id="adminPass" placeholder="Enter password">
-      <button onclick="verifyLogin()">Login</button>
-      <p id="loginMsg" style="color:#f87171;margin-top:10px;"></p>
+      <button id="loginBtn">Login</button>
+      <p id="loginMsg"></p>
     </div>
   </div>
 
@@ -110,7 +120,9 @@
   <script type="module" src="admin.js"></script>
 
   <script>
-    const correctHash = "c1bf0f53d4326b8e44c52ef8ed1332d0adc38a37d096d19b2fcf4b7fb0c9fc1a";
+    // === CORRECT SHA-256 for password "desh21mayu50" ===
+    // Computed value: a273228b4a771a0c636aa2928cf068a5e3dc63bef89d8595b4037b8e843ac3a3
+    const correctHash = "a273228b4a771a0c636aa2928cf068a5e3dc63bef89d8595b4037b8e843ac3a3";
 
     async function sha256(str) {
       const buf = new TextEncoder().encode(str);
@@ -121,15 +133,38 @@
     }
 
     async function verifyLogin() {
-      let pass = document.getElementById("adminPass").value.trim();
-      let hash = await sha256(pass);
+      const passEl = document.getElementById("adminPass");
+      const msgEl = document.getElementById("loginMsg");
+      msgEl.textContent = "";
 
-      if (hash === correctHash) {
-        document.getElementById("loginScreen").style.display = "none";
-      } else {
-        document.getElementById("loginMsg").textContent = "❌ Incorrect password";
+      let pass = passEl.value || "";
+      pass = pass.trim(); // remove accidental whitespace
+
+      if (!pass) {
+        msgEl.textContent = "Please enter password";
+        return;
+      }
+
+      try {
+        const hash = await sha256(pass);
+        if (hash === correctHash) {
+          // Hide login overlay and load admin data
+          document.getElementById("loginScreen").style.display = "none";
+          // Optional: trigger admin.js to refresh or load if needed
+        } else {
+          msgEl.textContent = "❌ Incorrect password";
+        }
+      } catch (err) {
+        console.error("Hash error", err);
+        msgEl.textContent = "Error verifying password";
       }
     }
+
+    document.getElementById("loginBtn").addEventListener("click", verifyLogin);
+    // allow Enter key
+    document.getElementById("adminPass").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") verifyLogin();
+    });
   </script>
 </body>
 </html>
