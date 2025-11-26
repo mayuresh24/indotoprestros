@@ -30,7 +30,7 @@ const RESTAURANTS = [
     city: "Kota Bogor",
     category: "Sea Food",
     short: "140+ delicious dishes",
-    banner: "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzY9T_qFnruxeOVDULhON-G6Lu2brcAZ2OWylCe6222bPuyfXIHbACKcxFyOpFyoA6FRXPChLcy9WfpdOTCP71gvbZTaoRa8gTInitd_th5VM7JBJa4hXX7-jF-VEBdsL0502GC=s680-w680-h510-rw,
+    banner: "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzY9T_qFnruxeOVDULhON-G6Lu2brcAZ2OWylCe6222bPuyfXIHbACKcxFyOpFyoA6FRXPChLcy9WfpdOTCP71gvbZTaoRa8gTInitd_th5VM7JBJa4hXX7-jF-VEBdsL0502GC=s680-w680-h510-rw",
     images: [
       "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSzRFFGbt6wRMRPddcSjuvaIPjnPNdySGIh9RFRBBbLXYOlkm0YVNqJ-d9cJ3Q9mPSZcOtH4e3Iavqdnz5wnFv6I8ShDxWp6HO27zPAs6uGtp5W9wlh6AeaN6PXeZAJ8X18N6OLX=s680-w680-h510-rw",
       "https://lh3.googleusercontent.com/gps-cs-s/AG0ilSx-NLbKhzyTQiQ19tZtDk7ZtvSZMVQmNoVVyIQzDmAW9ziEY5Tccani39uh2wlCtqDp_znlKADUdYcHO7BaF-W3zZiyc3jIneOWyU-o48k7BRRNyWag2cX7poQNvWDhs964mp8=s680-w680-h510-rw",
