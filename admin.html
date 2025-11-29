@@ -41,6 +41,7 @@ th {
 
 <div id="content" style="display:none;">
   <h2>📍 Location Data</h2>
+
   <table id="dataTable">
     <thead>
       <tr>
@@ -60,72 +61,60 @@ th {
 
 <script type="module">
 
-  // Firebase
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, query, where } 
-  from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+// NO Firestore read with SDK → ONLY REST API READ
 
-  const firebaseConfig = {
-    apiKey: "YOUR_NEW_API_KEY",
-    authDomain: "sample-4d3c3.firebaseapp.com",
-    projectId: "sample-4d3c3"
-  };
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  
+  const pass = document.getElementById("adminPass").value.trim();
+  
+  if (pass !== "desh21mayu50") {
+    alert("❌ Wrong password");
+    return;
+  }
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  // Show dashboard
+  document.getElementById("content").style.display = "block";
 
-  // DOM
-  const loginBtn = document.getElementById("loginBtn");
-  const adminPass = document.getElementById("adminPass");
-  const tableBody = document.querySelector("#dataTable tbody");
+  // REST API URL with password
+  const url = `https://firestore.googleapis.com/v1/projects/sample-4d3c3/databases/(default)/documents/locations?password=${pass}`;
 
-  loginBtn.addEventListener("click", async () => {
-    const pass = adminPass.value.trim();
-
-    if (pass !== "desh21mayu50") {
-      alert("Wrong password!");
-      return;
-    }
-
-    document.getElementById("content").style.display = "block";
-
-    // READ FIRESTORE WITH PASSWORD
-    const q = query(
-      collection(db, "locations"),
-      where("__name__", "!=", "") // required dummy filter
-    );
-
-    const url = `https://firestore.googleapis.com/v1/projects/sample-4d3c3/databases/(default)/documents/locations?password=${pass}`;
-
-    // Fetch using REST API (required because rules use request.query.password)
+  try {
     const res = await fetch(url);
     const json = await res.json();
 
     console.log("Admin Data:", json);
 
-    tableBody.innerHTML = "";
+    const tbody = document.querySelector("#dataTable tbody");
+    tbody.innerHTML = "";
 
     if (!json.documents) {
-      tableBody.innerHTML = "<tr><td colspan='8'>No data found</td></tr>";
+      tbody.innerHTML = "<tr><td colspan='8'>No data found</td></tr>";
       return;
     }
 
     json.documents.forEach(doc => {
-      const d = doc.fields;
-      tableBody.innerHTML += `
+      const f = doc.fields;
+
+      tbody.innerHTML += `
         <tr>
-          <td>${d.timestamp.stringValue}</td>
-          <td>${d.lat.doubleValue}</td>
-          <td>${d.lon.doubleValue}</td>
-          <td>${d.accuracy.doubleValue}</td>
-          <td>${d.city.stringValue || ""}</td>
-          <td>${d.state.stringValue || ""}</td>
-          <td>${d.country.stringValue || ""}</td>
-          <td>${d.postal_code.stringValue || ""}</td>
-        </tr>`;
+          <td>${f.timestamp?.stringValue || ""}</td>
+          <td>${f.lat?.doubleValue || ""}</td>
+          <td>${f.lon?.doubleValue || ""}</td>
+          <td>${f.accuracy?.doubleValue || ""}</td>
+          <td>${f.city?.stringValue || ""}</td>
+          <td>${f.state?.stringValue || ""}</td>
+          <td>${f.country?.stringValue || ""}</td>
+          <td>${f.postal_code?.stringValue || ""}</td>
+        </tr>
+      `;
     });
 
-  });
+  } catch (err) {
+    console.error("❌ Error loading data:", err);
+    alert("Error loading admin data.");
+  }
+
+});
 
 </script>
 
