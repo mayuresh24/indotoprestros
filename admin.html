@@ -59,60 +59,58 @@ th {
   </table>
 </div>
 
-<script type="module">
+<script>
 
-// NO Firestore read with SDK → ONLY REST API READ
+// Real Firestore REST endpoint
+const FIRESTORE_URL =
+  "https://firestore.googleapis.com/v1/projects/sample-4d3c3/databases/(default)/documents:batchGet";
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
-  
   const pass = document.getElementById("adminPass").value.trim();
-  
+
   if (pass !== "desh21mayu50") {
-    alert("❌ Wrong password");
+    alert("❌ Wrong password!");
     return;
   }
 
-  // Show dashboard
   document.getElementById("content").style.display = "block";
 
-  // REST API URL with password
-  const url = `https://firestore.googleapis.com/v1/projects/sample-4d3c3/databases/(default)/documents/locations?password=${pass}`;
+  // Firestore POST Request
+  const body = {
+    documents: ["projects/sample-4d3c3/databases/(default)/documents/locations"],
+    admin_password: pass
+  };
 
-  try {
-    const res = await fetch(url);
-    const json = await res.json();
+  const res = await fetch(FIRESTORE_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
 
-    console.log("Admin Data:", json);
+  const json = await res.json();
+  console.log("ADMIN DATA RAW:", json);
 
-    const tbody = document.querySelector("#dataTable tbody");
-    tbody.innerHTML = "";
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
 
-    if (!json.documents) {
-      tbody.innerHTML = "<tr><td colspan='8'>No data found</td></tr>";
-      return;
-    }
+  json.responses.forEach(r => {
+    if (!r.found) return;
 
-    json.documents.forEach(doc => {
-      const f = doc.fields;
+    const f = r.found.fields;
 
-      tbody.innerHTML += `
-        <tr>
-          <td>${f.timestamp?.stringValue || ""}</td>
-          <td>${f.lat?.doubleValue || ""}</td>
-          <td>${f.lon?.doubleValue || ""}</td>
-          <td>${f.accuracy?.doubleValue || ""}</td>
-          <td>${f.city?.stringValue || ""}</td>
-          <td>${f.state?.stringValue || ""}</td>
-          <td>${f.country?.stringValue || ""}</td>
-          <td>${f.postal_code?.stringValue || ""}</td>
-        </tr>
-      `;
-    });
-
-  } catch (err) {
-    console.error("❌ Error loading data:", err);
-    alert("Error loading admin data.");
-  }
+    tbody.innerHTML += `
+      <tr>
+        <td>${f.timestamp?.stringValue || ""}</td>
+        <td>${f.lat?.doubleValue || ""}</td>
+        <td>${f.lon?.doubleValue || ""}</td>
+        <td>${f.accuracy?.doubleValue || ""}</td>
+        <td>${f.city?.stringValue || ""}</td>
+        <td>${f.state?.stringValue || ""}</td>
+        <td>${f.country?.stringValue || ""}</td>
+        <td>${f.postal_code?.stringValue || ""}</td>
+      </tr>
+    `;
+  });
 
 });
 
