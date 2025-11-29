@@ -1,149 +1,133 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Admin Dashboard — Secure</title>
+<meta charset="utf-8" />
+<title>Admin Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <style>
-    body {
-      font-family: Poppins, sans-serif;
-      background: #0f172a;
-      color: white;
-      margin: 0;
-      padding: 20px;
-    }
-    h1 { text-align: center; }
-
-    table {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    th {
-      background: rgba(255,255,255,0.15);
-    }
-
-    /* LOGIN SCREEN */
-    #loginScreen {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.95);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      color: white;
-      z-index: 9999;
-    }
-
-    #loginBox {
-      background: rgba(255,255,255,0.06);
-      padding: 25px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 350px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: none;
-      margin-top: 10px;
-      background: rgba(255,255,255,0.08);
-      color: white;
-      font-size: 15px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 15px;
-      background: #38bdf8;
-      color: black;
-      border: none;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    #loginMsg {
-      color: #f87171;
-      margin-top: 10px;
-      min-height: 18px;
-    }
-  </style>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+  padding: 20px;
+}
+input, button {
+  padding: 10px;
+  margin: 5px 0;
+}
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+th, td {
+  border: 1px solid #334155;
+  padding: 8px;
+  font-size: 14px;
+}
+th {
+  background: #1e293b;
+}
+</style>
 </head>
 
 <body>
 
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen">
-    <div id="loginBox">
-      <h2>🔐 Admin Login</h2>
-      <input id="adminPass" type="password" placeholder="Enter password">
-      <button onclick="verifyLogin()">Login</button>
-      <p id="loginMsg"></p>
-    </div>
-  </div>
+<h2>🔐 Admin Login</h2>
 
-  <!-- DASHBOARD -->
-  <h1>📍 Location Dashboard</h1>
-  <p style="text-align:center">Latest captured user locations</p>
+<input type="password" id="adminPass" placeholder="Enter Admin Password">
+<button id="loginBtn">Login</button>
 
-  <table id="locationsTable">
+<div id="content" style="display:none;">
+  <h2>📍 Location Data</h2>
+  <table id="dataTable">
     <thead>
       <tr>
         <th>Timestamp</th>
-        <th>Latitude</th>
-        <th>Longitude</th>
-        <th>Accuracy (m)</th>
+        <th>Lat</th>
+        <th>Lon</th>
+        <th>Accuracy</th>
         <th>City</th>
         <th>State</th>
         <th>Country</th>
+        <th>Postal</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
+</div>
 
-  <script type="module" src="admin.js"></script>
+<script type="module">
 
-  <script>
-    const ADMIN_PASSWORD = "desh21mayu50";
+  // Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, where } 
+  from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    function verifyLogin() {
-      const input = document.getElementById("adminPass").value.trim();
-      const msg = document.getElementById("loginMsg");
+  const firebaseConfig = {
+    apiKey: "YOUR_NEW_API_KEY",
+    authDomain: "sample-4d3c3.firebaseapp.com",
+    projectId: "sample-4d3c3"
+  };
 
-      if (!input) {
-        msg.textContent = "Please enter password";
-        return;
-      }
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-      if (input === ADMIN_PASSWORD) {
-        document.getElementById("loginScreen").style.display = "none";
-      } else {
-        msg.textContent = "❌ Incorrect password";
-      }
+  // DOM
+  const loginBtn = document.getElementById("loginBtn");
+  const adminPass = document.getElementById("adminPass");
+  const tableBody = document.querySelector("#dataTable tbody");
+
+  loginBtn.addEventListener("click", async () => {
+    const pass = adminPass.value.trim();
+
+    if (pass !== "desh21mayu50") {
+      alert("Wrong password!");
+      return;
     }
 
-    // Enter key
-    document.getElementById("adminPass").addEventListener("keydown", e => {
-      if (e.key === "Enter") verifyLogin();
+    document.getElementById("content").style.display = "block";
+
+    // READ FIRESTORE WITH PASSWORD
+    const q = query(
+      collection(db, "locations"),
+      where("__name__", "!=", "") // required dummy filter
+    );
+
+    const url = `https://firestore.googleapis.com/v1/projects/sample-4d3c3/databases/(default)/documents/locations?password=${pass}`;
+
+    // Fetch using REST API (required because rules use request.query.password)
+    const res = await fetch(url);
+    const json = await res.json();
+
+    console.log("Admin Data:", json);
+
+    tableBody.innerHTML = "";
+
+    if (!json.documents) {
+      tableBody.innerHTML = "<tr><td colspan='8'>No data found</td></tr>";
+      return;
+    }
+
+    json.documents.forEach(doc => {
+      const d = doc.fields;
+      tableBody.innerHTML += `
+        <tr>
+          <td>${d.timestamp.stringValue}</td>
+          <td>${d.lat.doubleValue}</td>
+          <td>${d.lon.doubleValue}</td>
+          <td>${d.accuracy.doubleValue}</td>
+          <td>${d.city.stringValue || ""}</td>
+          <td>${d.state.stringValue || ""}</td>
+          <td>${d.country.stringValue || ""}</td>
+          <td>${d.postal_code.stringValue || ""}</td>
+        </tr>`;
     });
-  </script>
+
+  });
+
+</script>
 
 </body>
 </html>
