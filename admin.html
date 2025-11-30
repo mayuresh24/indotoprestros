@@ -1,41 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-  <title>Admin Dashboard</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Dashboard</title>
 
-  <style>
-    body { font-family: Arial; padding: 20px; background: #111; color: #fff; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    table, th, td { border: 1px solid #555; }
-    th, td { padding: 10px; text-align: left; }
-    input { padding: 10px; width: 220px; }
-    button { padding: 10px 16px; }
-  </style>
+<style>
+body {
+  background:#0f172a;
+  color:white;
+  font-family:Poppins, sans-serif;
+  padding:20px;
+}
+table {
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+th, td {
+  border:1px solid #334155;
+  padding:10px;
+  font-size:14px;
+}
+th {
+  background:#1e293b;
+}
+input {
+  padding:10px;
+  font-size:16px;
+  width:200px;
+}
+button {
+  padding:10px 15px;
+  font-size:16px;
+  background:#38bdf8;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+</style>
 </head>
 
 <body>
 
 <h2>Admin Login</h2>
-
-<input type="password" id="pass" placeholder="Enter Password">
+<input type="password" id="adminPass" placeholder="Enter password">
 <button id="loginBtn">Login</button>
 
-<div id="adminPanel" style="display:none;">
-  <h2>📍 Locations Collected</h2>
-  <table id="dataTable">
+<div id="dashboard" style="display:none;">
+  <h2>📌 Location Records</h2>
+
+  <table id="locationsTable">
     <thead>
       <tr>
+        <th>Timestamp</th>
         <th>Latitude</th>
         <th>Longitude</th>
         <th>Accuracy</th>
         <th>City</th>
         <th>State</th>
         <th>Country</th>
-        <th>Postal</th>
-        <th>Address</th>
-        <th>Timestamp</th>
+        <th>Postal Code</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -43,60 +68,75 @@
 </div>
 
 <script>
-const PASSWORD = "desh21mayu50";
-const API_KEY = "AIzaSyDZv4ZTHqpFmDyQGFi4v-gCShkGnBplrXc"; // Add restricted API key here
-const PROJECT_ID = "sample-4d3c3";
+// ===============================
+// 1. LOGIN
+// ===============================
+document.getElementById("loginBtn").onclick = () => {
+    const pass = document.getElementById("adminPass").value;
+    if (pass === "desh21mayu50") {
+        document.getElementById("dashboard").style.display = "block";
+    } else {
+        alert("Incorrect password!");
+    }
+};
 
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  const input = document.getElementById("pass").value;
-  if (input !== PASSWORD) {
-    alert("Incorrect Password");
-    return;
-  }
+// ===============================
+// 2. FIRESTORE REST QUERY
+// ===============================
+const API_KEY = "YOUR_RESTRICTED_FIRESTORE_KEY"; // <-- replace only this
 
-  document.getElementById("adminPanel").style.display = "block";
+async function loadData() {
+    const url = `https://firestore.googleapis.com/v1/projects/sample-4d3c3/databases/(default)/documents:runQuery?key=${API_KEY}`;
 
-  // ✓ Call REST API (firestore batchGet)
-  const url =
-    `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:batchGet?key=${API_KEY}`;
+    const body = {
+        structuredQuery: {
+            select: {},                             // select all fields
+            from: [{ collectionId: "locations" }],  // collection name
+            orderBy: [{
+                field: { fieldPath: "timestamp" },
+                direction: "DESCENDING"
+            }]
+        }
+    };
 
-  const body = {
-    documents: ["projects/" + PROJECT_ID + "/databases/(default)/documents/locations"]
-  };
+    const res = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify(body)
+    });
 
-  const res = await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(body)
-  });
+    const results = await res.json();
+    console.log("ADMIN DATA RAW:", results);
 
-  const raw = await res.json();
-  console.log("ADMIN DATA RAW:", raw);
+    const tableBody = document.querySelector("#locationsTable tbody");
+    tableBody.innerHTML = "";
 
-  let tbody = document.querySelector("#dataTable tbody");
-  tbody.innerHTML = "";
+    results.forEach(item => {
+        if (!item.document) return;
 
-  raw.forEach(entry => {
-    if (!entry.found) return; // Skip missing
+        const data = item.document.fields;
 
-    let f = entry.found.fields;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${data.timestamp?.stringValue || "-"}</td>
+            <td>${data.lat?.doubleValue || "-"}</td>
+            <td>${data.lon?.doubleValue || "-"}</td>
+            <td>${data.accuracy?.doubleValue || "-"}</td>
+            <td>${data.city?.stringValue || "-"}</td>
+            <td>${data.state?.stringValue || "-"}</td>
+            <td>${data.country?.stringValue || "-"}</td>
+            <td>${data.postal_code?.stringValue || "-"}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
 
-    let row = `
-      <tr>
-        <td>${f.lat?.doubleValue || ""}</td>
-        <td>${f.lon?.doubleValue || ""}</td>
-        <td>${f.accuracy?.doubleValue || ""}</td>
-        <td>${f.city?.stringValue || ""}</td>
-        <td>${f.state?.stringValue || ""}</td>
-        <td>${f.country?.stringValue || ""}</td>
-        <td>${f.postal_code?.stringValue || ""}</td>
-        <td>${f.formatted_address?.stringValue || ""}</td>
-        <td>${f.timestamp?.stringValue || ""}</td>
-      </tr>
-    `;
-    tbody.innerHTML += row;
-  });
-
+// Load data automatically after login
+document.getElementById("loginBtn").addEventListener("click", () => {
+    if (document.getElementById("adminPass").value === "desh21mayu50") {
+        loadData();
+    }
 });
+
 </script>
 
 </body>
