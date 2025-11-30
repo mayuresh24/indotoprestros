@@ -110,24 +110,33 @@ async function loadData() {
     const tableBody = document.querySelector("#locationsTable tbody");
     tableBody.innerHTML = "";
 
-    results.forEach(item => {
-        if (!item.document) return;
+results.forEach(item => {
 
-        const data = item.document.fields;
+    // Skip null entries
+    if (!item.document) return;
 
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${data.timestamp?.stringValue || "-"}</td>
-            <td>${data.lat?.doubleValue || "-"}</td>
-            <td>${data.lon?.doubleValue || "-"}</td>
-            <td>${data.accuracy?.doubleValue || "-"}</td>
-            <td>${data.city?.stringValue || "-"}</td>
-            <td>${data.state?.stringValue || "-"}</td>
-            <td>${data.country?.stringValue || "-"}</td>
-            <td>${data.postal_code?.stringValue || "-"}</td>
-        `;
-        tableBody.appendChild(row);
-    });
+    const data = item.document.fields;
+
+    // Skip any corrupted or old entries missing timestamp/lat/lon
+    if (!data || !data.timestamp || !data.lat || !data.lon) {
+        console.warn("Skipping invalid document:", item);
+        return;
+    }
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>${data.timestamp.stringValue}</td>
+        <td>${data.lat.doubleValue}</td>
+        <td>${data.lon.doubleValue}</td>
+        <td>${data.accuracy?.doubleValue || "-"}</td>
+        <td>${data.city?.stringValue || "-"}</td>
+        <td>${data.state?.stringValue || "-"}</td>
+        <td>${data.country?.stringValue || "-"}</td>
+        <td>${data.postal_code?.stringValue || "-"}</td>
+    `;
+    tableBody.appendChild(row);
+});
+
 }
 
 // Load data automatically after login
