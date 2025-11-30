@@ -1,212 +1,190 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Locations</title>
 
-<title>Admin — Location Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 20px;
+    }
 
-<!-- ✅ Disable Caching -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #0ff;
+    }
 
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #0f172a;
-    color: white;
-    padding: 20px;
-  }
+    #loginBox {
+      max-width: 300px;
+      margin: 100px auto;
+      padding: 20px;
+      background: #222;
+      border-radius: 10px;
+      text-align: center;
+    }
 
-  .loginBox {
-    max-width: 350px;
-    margin: 120px auto;
-    background: #1e293b;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-  }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: none;
+    }
 
-  input {
-    width: 90%;
-    padding: 10px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 5px;
-  }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #0ff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-  button {
-    padding: 10px 20px;
-    border: none;
-    background: #38bdf8;
-    color: black;
-    cursor: pointer;
-    border-radius: 5px;
-  }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 25px;
+    }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 25px;
-  }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #444;
+    }
 
-  table, th, td {
-    border: 1px solid #475569;
-  }
-
-  th, td {
-    padding: 10px;
-    text-align: left;
-  }
-
-  th {
-    background: #1e293b;
-  }
-
-  #dataSection {
-    display: none;
-    margin-top: 20px;
-  }
-</style>
+    th {
+      background: #222;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- LOGIN SCREEN -->
-<div id="loginBox" class="loginBox">
-  <h2>Admin Login</h2>
-  <p>Enter password</p>
-  <input type="password" id="adminPass" placeholder="Password">
-  <button id="loginBtn">Login</button>
-  <p id="loginError" style="color: red; display:none;">Incorrect password</p>
-</div>
-
-<!-- DATA TABLE -->
-<div id="dataSection">
-  <h1>📍 Location Logs</h1>
-
-  <table id="locationsTable">
-    <thead>
-      <tr>
-        <th>Timestamp</th>
-        <th>Latitude</th>
-        <th>Longitude</th>
-        <th>Accuracy</th>
-        <th>City</th>
-        <th>State</th>
-        <th>Country</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<script type="module">
-
-// ----------------------------------------------------------
-// 1️⃣ FIRESTORE ACCESS (REST API — restricted key)
-// ----------------------------------------------------------
-const API_KEY = "AIzaSyDZv4ZTHqpFmDyQGFi4v-gCShkGnBplrXc";  // ← replace with your restricted key
-
-const PROJECT_ID = "sample-4d3c3";
-const COLLECTION = "locations";
-
-const FIRESTORE_URL =
-  `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION}:runQuery?key=${API_KEY}`;
+  <!-- LOGIN -->
+  <div id="loginBox">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPass" placeholder="Enter password">
+    <button onclick="checkPass()">Login</button>
+    <p id="loginError" style="color:red; display:none;">Incorrect password</p>
+  </div>
 
 
-// ----------------------------------------------------------
-// 2️⃣ LOGIN LOGIC
-// ----------------------------------------------------------
-document.getElementById("loginBtn").addEventListener("click", () => {
-  const pass = document.getElementById("adminPass").value.trim();
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="display:none;">
+    <h1>📍 Location Logs</h1>
+
+    <table id="locationsTable">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Accuracy</th>
+          <th>City</th>
+          <th>State</th>
+          <th>Country</th>
+          <th>Address</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+
+<script>
+/* ------------------------------
+   🔐 SIMPLE ADMIN PASSWORD
+------------------------------- */
+function checkPass() {
+  const pass = document.getElementById("adminPass").value;
 
   if (pass === "desh21mayu50") {
     document.getElementById("loginBox").style.display = "none";
-    document.getElementById("dataSection").style.display = "block";
+    document.getElementById("dashboard").style.display = "block";
     loadData();
   } else {
     document.getElementById("loginError").style.display = "block";
   }
-});
+}
 
 
-// ----------------------------------------------------------
-// 3️⃣ LOAD DATA (NO CACHE)
-// ----------------------------------------------------------
+/* ------------------------------
+   🔥 FIRESTORE REST API READ
+------------------------------- */
+
+const FIRESTORE_API_KEY = "AIzaSyDZv4ZTHqpFmDyQGFi4v-gCShkGnBplrXc";
+const PROJECT_ID = "sample-4d3c3";
+
 async function loadData() {
-  try {
-    const queryPayload = {
-      structuredQuery: {
-        from: [{ collectionId: COLLECTION }]
-      }
-    };
+  console.log("🔄 Loading from Firestore...");
 
-    const response = await fetch(FIRESTORE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      cache: "no-store",
-      body: JSON.stringify(queryPayload)
-    });
+  const url =
+    `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:runQuery?key=${FIRESTORE_API_KEY}`;
 
-    const raw = await response.json();
-    console.log("ADMIN DATA RAW:", raw);
+  const body = {
+    structuredQuery: {
+      from: [{ collectionId: "locations" }],
+      orderBy: [{ field: { fieldPath: "timestamp" }, direction: "DESCENDING" }]
+    }
+  };
 
-    if (!Array.isArray(raw)) {
-      console.error("❌ Firestore error:", raw);
-      alert("Firestore error—see console");
-      return;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+
+  console.log("ADMIN DATA RAW:", data);
+
+  if (!Array.isArray(data)) {
+    console.error("❌ Firestore returned error:", data);
+    return;
+  }
+
+  populateTable(data);
+}
+
+
+/* ------------------------------
+   📄 POPULATE TABLE
+------------------------------- */
+
+function populateTable(rows) {
+  const tbody = document.querySelector("#locationsTable tbody");
+  tbody.innerHTML = "";
+
+  rows.forEach(entry => {
+    if (!entry.document || !entry.document.fields) return;
+
+    const f = entry.document.fields;
+
+    function v(x) {
+      return x?.stringValue || x?.doubleValue || x?.integerValue || "-";
     }
 
-    // Convert Firestore REST response → clean rows
-    const rows = raw
-      .map(entry => entry.document?.fields ? {
-        timestamp: entry.document.fields.timestamp?.stringValue || "",
-        lat: entry.document.fields.lat?.doubleValue || "",
-        lon: entry.document.fields.lon?.doubleValue || "",
-        accuracy: entry.document.fields.accuracy?.doubleValue || entry.document.fields.accuracy?.integerValue || "",
-        city: entry.document.fields.city?.stringValue || "",
-        state: entry.document.fields.state?.stringValue || "",
-        country: entry.document.fields.country?.stringValue || "",
-        formatted_address: entry.document.fields.formatted_address?.stringValue || ""
-      } : null)
-      .filter(x => x && x.timestamp);
-
-    // Sort (newest first)
-    rows.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-    populateTable(rows);
-
-  } catch (err) {
-    console.error("❌ Error loading data:", err);
-  }
-}
-
-
-// ----------------------------------------------------------
-// 4️⃣ Populate Table
-// ----------------------------------------------------------
-function populateTable(rows) {
-  const tableBody = document.querySelector("#locationsTable tbody");
-  tableBody.innerHTML = "";
-
-  rows.forEach(r => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${new Date(r.timestamp).toLocaleString()}</td>
-      <td>${r.lat}</td>
-      <td>${r.lon}</td>
-      <td>${r.accuracy}</td>
-      <td>${r.city}</td>
-      <td>${r.state}</td>
-      <td>${r.country}</td>
-      <td>${r.formatted_address}</td>
+    const rowHTML = `
+      <tr>
+        <td>${v(f.timestamp)}</td>
+        <td>${v(f.lat)}</td>
+        <td>${v(f.lon)}</td>
+        <td>${v(f.accuracy)}</td>
+        <td>${v(f.city)}</td>
+        <td>${v(f.state)}</td>
+        <td>${v(f.country)}</td>
+        <td>${v(f.formatted_address)}</td>
+      </tr>
     `;
-    tableBody.appendChild(tr);
+
+    tbody.innerHTML += rowHTML;
   });
 }
-
 
 </script>
 
