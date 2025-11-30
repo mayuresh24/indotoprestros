@@ -1,107 +1,202 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Admin Dashboard</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Admin — Location Dashboard</title>
+
+<!-- ✅ Disable Caching -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <style>
   body {
+    font-family: Arial, sans-serif;
     background: #0f172a;
     color: white;
-    font-family: Arial;
     padding: 20px;
   }
+
+  .loginBox {
+    max-width: 350px;
+    margin: 120px auto;
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+  }
+
+  input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+  }
+
+  button {
+    padding: 10px 20px;
+    border: none;
+    background: #38bdf8;
+    color: black;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 25px;
   }
+
+  table, th, td {
+    border: 1px solid #475569;
+  }
+
   th, td {
-    border: 1px solid #334155;
     padding: 10px;
+    text-align: left;
   }
+
   th {
     background: #1e293b;
   }
-  tr:nth-child(even) {
-    background: #1e293b;
+
+  #dataSection {
+    display: none;
+    margin-top: 20px;
   }
 </style>
 </head>
+
 <body>
 
-<h2>📍 Admin Dashboard – Locations</h2>
-<table id="dataTable">
-  <thead>
-    <tr>
-      <th>Timestamp</th>
-      <th>Latitude</th>
-      <th>Longitude</th>
-      <th>Accuracy</th>
-      <th>City</th>
-      <th>State</th>
-      <th>Country</th>
-      <th>Address</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+<!-- LOGIN SCREEN -->
+<div id="loginBox" class="loginBox">
+  <h2>Admin Login</h2>
+  <p>Enter password</p>
+  <input type="password" id="adminPass" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <p id="loginError" style="color: red; display:none;">Incorrect password</p>
+</div>
 
-<script>
-const API_KEY = "AIzaSyDZv4ZTHqpFmDyQGFi4v-gCShkGnBplrXc";
+<!-- DATA TABLE -->
+<div id="dataSection">
+  <h1>📍 Location Logs</h1>
 
-// Helper to safely extract Firestore fields
-function getField(f) {
-  if (!f) return "";
-  if (f.stringValue !== undefined) return f.stringValue;
-  if (f.doubleValue !== undefined) return f.doubleValue;
-  if (f.integerValue !== undefined) return Number(f.integerValue);
-  if (f.mapValue !== undefined) return "[map]";
-  return "";
+  <table id="locationsTable">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Accuracy</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Country</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script type="module">
+
+// ----------------------------------------------------------
+// 1️⃣ FIRESTORE ACCESS (REST API — restricted key)
+// ----------------------------------------------------------
+const API_KEY = "AIzaSyDZv4ZTHqpFmDyQGFi4v-gCShkGnBplrXc";  // ← replace with your restricted key
+
+const PROJECT_ID = "sample-4d3c3";
+const COLLECTION = "locations";
+
+const FIRESTORE_URL =
+  `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION}:runQuery?key=${API_KEY}`;
+
+
+// ----------------------------------------------------------
+// 2️⃣ LOGIN LOGIC
+// ----------------------------------------------------------
+document.getElementById("loginBtn").addEventListener("click", () => {
+  const pass = document.getElementById("adminPass").value.trim();
+
+  if (pass === "desh21mayu50") {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("dataSection").style.display = "block";
+    loadData();
+  } else {
+    document.getElementById("loginError").style.display = "block";
+  }
+});
+
+
+// ----------------------------------------------------------
+// 3️⃣ LOAD DATA (NO CACHE)
+// ----------------------------------------------------------
+async function loadData() {
+  try {
+    const queryPayload = {
+      structuredQuery: {
+        from: [{ collectionId: COLLECTION }],
+        orderBy: [{ field: { fieldPath: "timestamp" }, direction: "DESCENDING" }]
+      }
+    };
+
+    const response = await fetch(FIRESTORE_URL, {
+      method: "POST",
+      cache: "no-store",            // ⛔ prevents caching
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(queryPayload)
+    });
+
+    const results = await response.json();
+    console.log("ADMIN DATA RAW:", results);
+
+    populateTable(results);
+  } catch (err) {
+    console.error("❌ Error loading data:", err);
+  }
 }
 
-async function loadData() {
-  const url = `https://firestore.googleapis.com/v1/projects/sample-4d3c3/databases/(default)/documents/locations?key=${API_KEY}`;
 
-  const res = await fetch(url);
-  const json = await res.json();
-
-  console.log("ADMIN DATA RAW:", json.documents);
-
-  const tbody = document.querySelector("#dataTable tbody");
+// ----------------------------------------------------------
+// 4️⃣ Populate Table
+// ----------------------------------------------------------
+function populateTable(rows) {
+  const tbody = document.querySelector("#locationsTable tbody");
   tbody.innerHTML = "";
 
-  json.documents.forEach(doc => {
-    const f = doc.fields;
+  rows.forEach(item => {
+    if (!item.document) return; // skip empty rows
 
-    const lat = getField(f.lat);
-    const lon = getField(f.lon);
-    const accuracy = getField(f.accuracy);
-    const ts = getField(f.timestamp);
-    const city = getField(f.city);
-    const state = getField(f.state);
-    const country = getField(f.country);
-    const addr = getField(f.formatted_address);
+    const fields = item.document.fields;
+    if (!fields) return;
 
-    const readableTS = ts ? new Date(ts).toLocaleString() : "-";
+    const ts   = fields.timestamp?.stringValue || "";
+    const lat  = fields.lat?.doubleValue || fields.lat?.integerValue || "";
+    const lon  = fields.lon?.doubleValue || fields.lon?.integerValue || "";
+    const acc  = fields.accuracy?.doubleValue || fields.accuracy?.integerValue || "";
+    const city = fields.city?.stringValue || "";
+    const state = fields.state?.stringValue || "";
+    const country = fields.country?.stringValue || "";
 
-    const row = `
-      <tr>
-        <td>${readableTS}</td>
-        <td>${lat}</td>
-        <td>${lon}</td>
-        <td>${accuracy}</td>
-        <td>${city}</td>
-        <td>${state}</td>
-        <td>${country}</td>
-        <td>${addr}</td>
-      </tr>
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${new Date(ts).toLocaleString()}</td>
+      <td>${lat}</td>
+      <td>${lon}</td>
+      <td>${acc}</td>
+      <td>${city}</td>
+      <td>${state}</td>
+      <td>${country}</td>
     `;
 
-    tbody.innerHTML += row;
+    tbody.appendChild(row);
   });
 }
 
-loadData();
 </script>
 
 </body>
