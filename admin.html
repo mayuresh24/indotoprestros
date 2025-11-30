@@ -139,18 +139,7 @@ async function loadData() {
   try {
     const queryPayload = {
       structuredQuery: {
-        from: [{ collectionId: COLLECTION }],
-        where: {
-          fieldFilter: {
-            field: { fieldPath: "timestamp" },
-            op: "IS_NOT_NULL",
-            value: { nullValue: null }
-          }
-        },
-        orderBy: [{
-          field: { fieldPath: "timestamp" },
-          direction: "DESCENDING"
-        }]
+        from: [{ collectionId: COLLECTION }]
       }
     };
 
@@ -161,16 +150,33 @@ async function loadData() {
       body: JSON.stringify(queryPayload)
     });
 
-    const result = await response.json();
-    console.log("ADMIN DATA RAW:", result);
+    const raw = await response.json();
+    console.log("ADMIN DATA RAW:", raw);
 
-    if (!Array.isArray(result)) {
-      console.error("❌ Firestore returned error:", result);
-      alert("Firestore error: Check console.");
+    if (!Array.isArray(raw)) {
+      console.error("❌ Firestore error:", raw);
+      alert("Firestore error—see console");
       return;
     }
 
-    populateTable(result);
+    // Convert Firestore REST response → clean rows
+    const rows = raw
+      .map(entry => entry.document?.fields ? {
+        timestamp: entry.document.fields.timestamp?.stringValue || "",
+        lat: entry.document.fields.lat?.doubleValue || "",
+        lon: entry.document.fields.lon?.doubleValue || "",
+        accuracy: entry.document.fields.accuracy?.doubleValue || entry.document.fields.accuracy?.integerValue || "",
+        city: entry.document.fields.city?.stringValue || "",
+        state: entry.document.fields.state?.stringValue || "",
+        country: entry.document.fields.country?.stringValue || "",
+        formatted_address: entry.document.fields.formatted_address?.stringValue || ""
+      } : null)
+      .filter(x => x && x.timestamp);
+
+    // Sort (newest first)
+    rows.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    populateTable(rows);
 
   } catch (err) {
     console.error("❌ Error loading data:", err);
@@ -182,37 +188,25 @@ async function loadData() {
 // 4️⃣ Populate Table
 // ----------------------------------------------------------
 function populateTable(rows) {
-  const tbody = document.querySelector("#locationsTable tbody");
-  tbody.innerHTML = "";
+  const tableBody = document.querySelector("#locationsTable tbody");
+  tableBody.innerHTML = "";
 
-  rows.forEach(item => {
-    if (!item.document) return; // skip empty rows
-
-    const fields = item.document.fields;
-    if (!fields) return;
-
-    const ts   = fields.timestamp?.stringValue || "";
-    const lat  = fields.lat?.doubleValue || fields.lat?.integerValue || "";
-    const lon  = fields.lon?.doubleValue || fields.lon?.integerValue || "";
-    const acc  = fields.accuracy?.doubleValue || fields.accuracy?.integerValue || "";
-    const city = fields.city?.stringValue || "";
-    const state = fields.state?.stringValue || "";
-    const country = fields.country?.stringValue || "";
-
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${new Date(ts).toLocaleString()}</td>
-      <td>${lat}</td>
-      <td>${lon}</td>
-      <td>${acc}</td>
-      <td>${city}</td>
-      <td>${state}</td>
-      <td>${country}</td>
+  rows.forEach(r => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${new Date(r.timestamp).toLocaleString()}</td>
+      <td>${r.lat}</td>
+      <td>${r.lon}</td>
+      <td>${r.accuracy}</td>
+      <td>${r.city}</td>
+      <td>${r.state}</td>
+      <td>${r.country}</td>
+      <td>${r.formatted_address}</td>
     `;
-
-    tbody.appendChild(row);
+    tableBody.appendChild(tr);
   });
 }
+
 
 </script>
 
