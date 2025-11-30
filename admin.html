@@ -140,21 +140,38 @@ async function loadData() {
     const queryPayload = {
       structuredQuery: {
         from: [{ collectionId: COLLECTION }],
-        orderBy: [{ field: { fieldPath: "timestamp" }, direction: "DESCENDING" }]
+        where: {
+          fieldFilter: {
+            field: { fieldPath: "timestamp" },
+            op: "IS_NOT_NULL",
+            value: { nullValue: null }
+          }
+        },
+        orderBy: [{
+          field: { fieldPath: "timestamp" },
+          direction: "DESCENDING"
+        }]
       }
     };
 
     const response = await fetch(FIRESTORE_URL, {
       method: "POST",
-      cache: "no-store",            // ⛔ prevents caching
       headers: { "Content-Type": "application/json" },
+      cache: "no-store",
       body: JSON.stringify(queryPayload)
     });
 
-    const results = await response.json();
-    console.log("ADMIN DATA RAW:", results);
+    const result = await response.json();
+    console.log("ADMIN DATA RAW:", result);
 
-    populateTable(results);
+    if (!Array.isArray(result)) {
+      console.error("❌ Firestore returned error:", result);
+      alert("Firestore error: Check console.");
+      return;
+    }
+
+    populateTable(result);
+
   } catch (err) {
     console.error("❌ Error loading data:", err);
   }
