@@ -112,30 +112,44 @@ async function loadData() {
 
 results.forEach(item => {
 
-    // Skip null entries
-    if (!item.document) return;
+    // Skip rows WITHOUT document
+    if (!item.document || !item.document.fields) {
+        console.warn("Skipping empty Firestore row:", item);
+        return;
+    }
 
-    const data = item.document.fields;
+    const f = item.document.fields;
 
-    // Skip any corrupted or old entries missing timestamp/lat/lon
-    if (!data || !data.timestamp || !data.lat || !data.lon) {
-        console.warn("Skipping invalid document:", item);
+    // Extract fields safely
+    const timestamp = f.timestamp?.stringValue || "-";
+    const lat = f.lat?.doubleValue || f.lat?.stringValue || "-";
+    const lon = f.lon?.doubleValue || f.lon?.stringValue || "-";
+    const accuracy = f.accuracy?.doubleValue || "-";
+    const city = f.city?.stringValue || "-";
+    const state = f.state?.stringValue || "-";
+    const country = f.country?.stringValue || "-";
+    const postal = f.postal_code?.stringValue || "-";
+
+    // If the doc does NOT contain valid basic info, skip it
+    if (timestamp === "-" || lat === "-" || lon === "-") {
+        console.warn("Skipping INVALID document:", item);
         return;
     }
 
     const row = document.createElement("tr");
     row.innerHTML = `
-        <td>${data.timestamp.stringValue}</td>
-        <td>${data.lat.doubleValue}</td>
-        <td>${data.lon.doubleValue}</td>
-        <td>${data.accuracy?.doubleValue || "-"}</td>
-        <td>${data.city?.stringValue || "-"}</td>
-        <td>${data.state?.stringValue || "-"}</td>
-        <td>${data.country?.stringValue || "-"}</td>
-        <td>${data.postal_code?.stringValue || "-"}</td>
+        <td>${timestamp}</td>
+        <td>${lat}</td>
+        <td>${lon}</td>
+        <td>${accuracy}</td>
+        <td>${city}</td>
+        <td>${state}</td>
+        <td>${country}</td>
+        <td>${postal}</td>
     `;
     tableBody.appendChild(row);
 });
+
 
 }
 
