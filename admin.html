@@ -1,165 +1,107 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8" />
 <title>Admin Dashboard</title>
-
 <style>
-body {
-  background:#0f172a;
-  color:white;
-  font-family:Poppins, sans-serif;
-  padding:20px;
-}
-table {
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-}
-th, td {
-  border:1px solid #334155;
-  padding:10px;
-  font-size:14px;
-}
-th {
-  background:#1e293b;
-}
-input {
-  padding:10px;
-  font-size:16px;
-  width:200px;
-}
-button {
-  padding:10px 15px;
-  font-size:16px;
-  background:#38bdf8;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
+  body {
+    background: #0f172a;
+    color: white;
+    font-family: Arial;
+    padding: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th, td {
+    border: 1px solid #334155;
+    padding: 10px;
+  }
+  th {
+    background: #1e293b;
+  }
+  tr:nth-child(even) {
+    background: #1e293b;
+  }
 </style>
 </head>
-
 <body>
 
-<h2>Admin Login</h2>
-<input type="password" id="adminPass" placeholder="Enter password">
-<button id="loginBtn">Login</button>
-
-<div id="dashboard" style="display:none;">
-  <h2>📌 Location Records</h2>
-
-  <table id="locationsTable">
-    <thead>
-      <tr>
-        <th>Timestamp</th>
-        <th>Latitude</th>
-        <th>Longitude</th>
-        <th>Accuracy</th>
-        <th>City</th>
-        <th>State</th>
-        <th>Country</th>
-        <th>Postal Code</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+<h2>📍 Admin Dashboard – Locations</h2>
+<table id="dataTable">
+  <thead>
+    <tr>
+      <th>Timestamp</th>
+      <th>Latitude</th>
+      <th>Longitude</th>
+      <th>Accuracy</th>
+      <th>City</th>
+      <th>State</th>
+      <th>Country</th>
+      <th>Address</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
 <script>
-// ===============================
-// 1. LOGIN
-// ===============================
-document.getElementById("loginBtn").onclick = () => {
-    const pass = document.getElementById("adminPass").value;
-    if (pass === "desh21mayu50") {
-        document.getElementById("dashboard").style.display = "block";
-    } else {
-        alert("Incorrect password!");
-    }
-};
+const API_KEY = "AIzaSyDZv4ZTHqpFmDyQGFi4v-gCShkGnBplrXc";
 
-// ===============================
-// 2. FIRESTORE REST QUERY
-// ===============================
-const API_KEY = "AIzaSyDZv4ZTHqpFmDyQGFi4v-gCShkGnBplrXc"; // <-- replace only this
+// Helper to safely extract Firestore fields
+function getField(f) {
+  if (!f) return "";
+  if (f.stringValue !== undefined) return f.stringValue;
+  if (f.doubleValue !== undefined) return f.doubleValue;
+  if (f.integerValue !== undefined) return Number(f.integerValue);
+  if (f.mapValue !== undefined) return "[map]";
+  return "";
+}
 
 async function loadData() {
-    const url = `https://firestore.googleapis.com/v1/projects/sample-4d3c3/databases/(default)/documents:runQuery?key=${API_KEY}`;
+  const url = `https://firestore.googleapis.com/v1/projects/sample-4d3c3/databases/(default)/documents/locations?key=${API_KEY}`;
 
-    const body = {
-        structuredQuery: {
-            select: {},                             // select all fields
-            from: [{ collectionId: "locations" }],  // collection name
-            orderBy: [{
-                field: { fieldPath: "timestamp" },
-                direction: "DESCENDING"
-            }]
-        }
-    };
+  const res = await fetch(url);
+  const json = await res.json();
 
-    const res = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify(body)
-    });
+  console.log("ADMIN DATA RAW:", json.documents);
 
-    const results = await res.json();
-    console.log("ADMIN DATA RAW:", results);
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
 
-    const tableBody = document.querySelector("#locationsTable tbody");
-    tableBody.innerHTML = "";
+  json.documents.forEach(doc => {
+    const f = doc.fields;
 
-results.forEach(item => {
+    const lat = getField(f.lat);
+    const lon = getField(f.lon);
+    const accuracy = getField(f.accuracy);
+    const ts = getField(f.timestamp);
+    const city = getField(f.city);
+    const state = getField(f.state);
+    const country = getField(f.country);
+    const addr = getField(f.formatted_address);
 
-    // Skip rows WITHOUT document
-    if (!item.document || !item.document.fields) {
-        console.warn("Skipping empty Firestore row:", item);
-        return;
-    }
+    const readableTS = ts ? new Date(ts).toLocaleString() : "-";
 
-    const f = item.document.fields;
-
-    // Extract fields safely
-    const timestamp = f.timestamp?.stringValue || "-";
-    const lat = f.lat?.doubleValue || f.lat?.stringValue || "-";
-    const lon = f.lon?.doubleValue || f.lon?.stringValue || "-";
-    const accuracy = f.accuracy?.doubleValue || "-";
-    const city = f.city?.stringValue || "-";
-    const state = f.state?.stringValue || "-";
-    const country = f.country?.stringValue || "-";
-    const postal = f.postal_code?.stringValue || "-";
-
-    // If the doc does NOT contain valid basic info, skip it
-    if (timestamp === "-" || lat === "-" || lon === "-") {
-        console.warn("Skipping INVALID document:", item);
-        return;
-    }
-
-    const row = document.createElement("tr");
-    row.innerHTML = `
-        <td>${timestamp}</td>
+    const row = `
+      <tr>
+        <td>${readableTS}</td>
         <td>${lat}</td>
         <td>${lon}</td>
         <td>${accuracy}</td>
         <td>${city}</td>
         <td>${state}</td>
         <td>${country}</td>
-        <td>${postal}</td>
+        <td>${addr}</td>
+      </tr>
     `;
-    tableBody.appendChild(row);
-});
 
-
+    tbody.innerHTML += row;
+  });
 }
 
-// Load data automatically after login
-document.getElementById("loginBtn").addEventListener("click", () => {
-    if (document.getElementById("adminPass").value === "desh21mayu50") {
-        loadData();
-    }
-});
-
+loadData();
 </script>
 
 </body>
