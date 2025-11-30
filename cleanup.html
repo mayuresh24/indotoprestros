@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cleanup Firestore - Delete Empty Docs</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    padding: 20px;
+  }
+  button {
+    padding: 12px 18px;
+    font-size: 18px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  #log {
+    margin-top: 20px;
+    padding: 15px;
+    background: #1e293b;
+    border-radius: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+  }
+</style>
+</head>
+
+<body>
+
+<h2>🧹 Firestore Cleanup Tool</h2>
+<p>This tool will delete ONLY <b>empty</b> documents in <code>locations</code>.</p>
+
+<button id="cleanupBtn">Delete Empty Documents</button>
+
+<div id="log"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+  // ✅ Your Firebase config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "sample-4d3c3.firebaseapp.com",
+    projectId: "sample-4d3c3",
+    storageBucket: "sample-4d3c3.firebasestorage.app",
+    messagingSenderId: "1064954656144",
+    appId: "1:1064954656144:web:34252bec01b29ae5aaaf15"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const logBox = document.getElementById("log");
+  function log(msg) {
+    logBox.textContent += msg + "\n";
+  }
+
+  document.getElementById("cleanupBtn").addEventListener("click", async () => {
+    log("🔍 Checking Firestore...");
+
+    const snap = await getDocs(collection(db, "locations"));
+    let deleted = 0;
+
+    snap.forEach(async d => {
+      const data = d.data();
+
+      // ❌ Empty document check (NO fields)
+      if (!data || Object.keys(data).length === 0) {
+        await deleteDoc(doc(db, "locations", d.id));
+        log(`🗑 Deleted empty doc → ${d.id}`);
+        deleted++;
+      }
+    });
+
+    if (deleted === 0) {
+      log("✅ No empty docs found. Database is clean!");
+    } else {
+      log(`🎉 Cleanup complete! Removed ${deleted} empty docs.`);
+    }
+  });
+</script>
+
+</body>
+</html>
